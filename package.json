@@ -1,0 +1,25 @@
+{
+  "name": "mern_my_blog",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000M\u0000E\u0000R\u0000N\u0000_\u0000m\u0000y\u0000_\u0000b\u0000l\u0000o\u0000g\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon api/index.js",
+    "start": "node api/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KylieHan0306/MERN_my_blog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KylieHan0306/MERN_my_blog/issues"
+  },
+  "homepage": "https://github.com/KylieHan0306/MERN_my_blog#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
