@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 
 const registerController = async (req, res, next) => {
     const { username, password, email } = req.body
-    console.log(req.body)
+
     if (!username || username.length === 0) {
         next(errorHandler(400, "Username cannot be empty."))
         return
@@ -27,6 +27,7 @@ const registerController = async (req, res, next) => {
         }) 
         await newUser.save()
         res.status(201).json(req.body)
+        //cookie needed for register
     } catch (e) {
         next(e)
     }
