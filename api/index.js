@@ -22,3 +22,10 @@ app.listen(3000, () => {
 app.use(express.json())
 app.use('/api', userRouter)
 app.use('/api', authRouter)
+app.use((err, req, res, next)=> {
+    const statusCode = err.statusCode || 500
+    const errMsg = err.message || "Internal server error"
+    res.status(statusCode).json({
+        errMsg
+    })
+})
