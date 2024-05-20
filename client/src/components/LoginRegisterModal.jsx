@@ -2,6 +2,8 @@ import { Button, Checkbox, Label, Modal, Spinner, TextInput } from "flowbite-rea
 import { useState } from "react";
 import { FaGoogle } from 'react-icons/fa';
 import axios from 'axios';
+import { loginSuccess, loginStart, loginFail } from "../store/userStore";
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function LoginRegisterModal({ register, setRegister, openModal, setOpenModal }) {
 
@@ -13,7 +15,9 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
   const [emailError, setEmailError] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const { loading } = useSelector(state => state.user);
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -44,7 +48,6 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
     setEmailError('');
     setPasswordError('');
     setUsernameError('');
-    setLoading(false);
   }
 
   const validateUsername = (register, username) => {
@@ -75,6 +78,21 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
     return true;
   };
 
+  const passwordValidation = (password) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+  };
+
+  const emailValidation = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const endpoint = register ? "/api/auth/register" : "/api/auth/login";
@@ -83,25 +101,28 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
     const isPasswordValid = validatePassword(register, formData.password);
 
     if (!isUsernameValid || !isEmailValid || !isPasswordValid) {
-      setLoading(false);
+      dispatch(loginFail());
       return;
     }
     try {
-      setLoading(true);
+      dispatch(loginStart())
       const res = await axios.post(endpoint, formData);
-      console.log(res);
-      setLoading(false);
-      setOpenModal(false);
+      if(res.status < 300 && res.status >= 200) {
+        dispatch(loginSuccess(res.data))
+      }
+      onCloseModal();
     } catch (e) {
+      dispatch(loginFail());
       const errorMessage = e.response.data.errMsg;
       // duplicate key error
       if (errorMessage.indexOf('E11000') !== -1) {
         errorMessage.indexOf('email') !== -1 ? setEmailError('Email already taken') : setUsernameError('Username already taken');
-        setLoading(false);
+        dispatch(loginFail());
         return;
       }
-      setEmailError(errorMessage)
-      setPasswordError(errorMessage)
+      setEmailError(errorMessage);
+      setPasswordError(errorMessage);
+      dispatch(loginFail());
     }
   };
 
@@ -114,7 +135,7 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
     setEmailError('');
     setPasswordError('');
     setUsernameError('');
-    setLoading(false);
+    dispatch(loginFail());
     setRegister(!register);
   }
 
@@ -157,7 +178,7 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
               </div>
               <TextInput 
                 id="password" 
-                type="password" 
+                type={showPassword? "text":"password"} 
                 placeholder="**********"
                 onChange={handleChange}
                 color={passwordError.length===0? "gray":"failure"}
@@ -166,8 +187,8 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
             </div>
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember">Remember me</Label>
+                <Checkbox id="show password" onChange={()=> {setShowPassword(!showPassword)}}/>
+                <Label htmlFor="show password">Show password</Label>
               </div>
               <a href="#" className="text-sm text-cyan-700 hover:underline dark:text-cyan-500">
                 Lost Password?
