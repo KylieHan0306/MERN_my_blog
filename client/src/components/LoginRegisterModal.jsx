@@ -47,19 +47,43 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
     setLoading(false);
   }
 
+  const validateUsername = (register, username) => {
+    if (register && username?.length === 0) {
+      setUsernameError("Username cannot be empty");
+      return false;
+    }
+    return true;
+  };
+  
+  const validateEmail = (email) => {
+    if (email.length === 0 || !emailValidation(email)) {
+      setEmailError("Please enter a valid email");
+      return false;
+    }
+    return true;
+  };
+  
+  const validatePassword = (register, password) => {
+    if (password.length === 0) {
+      setPasswordError("Please enter a valid password");
+      return false;
+    }
+    if (register && (!passwordValidation(password) || password.length === 0)) {
+      setPasswordError("Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*(),.?\":{}|<>).");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const endpoint = register ? "/api/auth/register" : "/api/auth/login";
-    if (register && formData.username?.length === 0) {
-      setUsernameError("Username field cannot be empty"); 
-      return;
-    }
-    if (formData.email.length === 0) {
-      setEmailError("Email field cannot be empty");
-      return;
-    }
-    if (formData.password.length === 0) {
-      setPasswordError("Password field cannot be empty");
+    const isUsernameValid = validateUsername(register, formData.username);
+    const isEmailValid = validateEmail(formData.email);
+    const isPasswordValid = validatePassword(register, formData.password);
+
+    if (!isUsernameValid || !isEmailValid || !isPasswordValid) {
+      setLoading(false);
       return;
     }
     try {
@@ -67,21 +91,17 @@ export default function LoginRegisterModal({ register, setRegister, openModal, s
       const res = await axios.post(endpoint, formData);
       console.log(res);
       setLoading(false);
+      setOpenModal(false);
     } catch (e) {
       const errorMessage = e.response.data.errMsg;
-      console.log(errorMessage)
       // duplicate key error
       if (errorMessage.indexOf('E11000') !== -1) {
         errorMessage.indexOf('email') !== -1 ? setEmailError('Email already taken') : setUsernameError('Username already taken');
         setLoading(false);
         return;
       }
-      if (register) {
-        setUsernameError(errorMessage);
-      }
-      setEmailError(errorMessage);
-      setPasswordError(errorMessage);
-      setLoading(false);
+      setEmailError(errorMessage)
+      setPasswordError(errorMessage)
     }
   };
 
