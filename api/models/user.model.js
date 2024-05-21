@@ -14,6 +14,20 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         require: true,
+    },
+    activate: {
+        type: Boolean,
+        default: false,
+        require: true
+    },
+    email_token: {
+        type: String,
+        require: true,
+    },
+    email_token_issued_at: {
+        type: Date,
+        required: true,
+        default: Date.now
     }
 })
 

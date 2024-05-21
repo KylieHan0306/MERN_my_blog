@@ -2,6 +2,37 @@ const bcryptjs = require('bcryptjs')
 const User = require('../models/user.model.js')
 const errorHandler = require('../utils/errorHandler.js')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+// Function to send email
+async function sendEmail(email, token) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.APP_PASS
+        }
+    });
+    const verificationUrl = `http://localhost:3000/verify?token=${token}`;
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Email Verification',
+        html: `
+            <h1>Verify Your Email</h1>
+            <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+            <a href="${verificationUrl}">Verify Email</a>
+        `,
+    };
+    
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.error('Error sending email', error);
+        }
+        console.log('Email sent: ' + info.response);
+    });
+}
 
 const registerController = async (req, res, next) => {
     const { username, password, email } = req.body
@@ -20,13 +51,16 @@ const registerController = async (req, res, next) => {
     }
 
     try {
-        const newUser = new User({
+        const email_token = crypto.randomBytes(32).toString('hex')
+        /* const newUser = new User({
             username,
             email,
-            password: bcryptjs.hashSync(password, 10)
-        }) 
-        await newUser.save()
-        res.status(201).json(req.body)
+            password: bcryptjs.hashSync(password, 10),
+            email_token,
+        }) */
+        sendEmail(email, email_token)
+        //await newUser.save()
+        //sendVerificationEmail(email, email_token)
         //cookie needed for register
     } catch (e) {
         next(e)
@@ -67,6 +101,7 @@ const loginController = async (req, res, next) => {
     }
 
 }
+
 module.exports = {
     registerController,
     loginController
