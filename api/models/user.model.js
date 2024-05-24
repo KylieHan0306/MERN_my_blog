@@ -20,15 +20,6 @@ const userSchema = new mongoose.Schema({
         default: false,
         require: true
     },
-    email_token: {
-        type: String,
-        require: true,
-    },
-    email_token_issued_at: {
-        type: Date,
-        required: true,
-        default: Date.now
-    }
 })
 
 const User = mongoose.model('User', userSchema)
