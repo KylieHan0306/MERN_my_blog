@@ -2,13 +2,15 @@ import { Button, Navbar, TextInput } from 'flowbite-react';
 import { Link, useLocation } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon } from 'react-icons/fa';
-import LoginRegisterModel from './LoginRegisterModal';
+import Modal from './Modal';
+import LoginRegisterForm from "./LoginRegisterForm";
+import PasswordResetRequestForm from './PasswordResetRequestForm';
 import { useState } from 'react';
 
 export default function Header() {
     const path = useLocation().pathname;
     const [openModal, setOpenModal] = useState(false);
-    const [register, setRegister] = useState(false);
+    const [modalContent, setModalContent] = useState('login');
 
     return (
         <Navbar className='border-b-2'>
@@ -51,7 +53,7 @@ export default function Header() {
                         style={{
                             backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
                         }}
-                        onClick={() => {setRegister(false); setOpenModal(true)}}
+                        onClick={() => {setOpenModal(true)}}
                     >
                         Login
                     </Button>
@@ -69,11 +71,9 @@ export default function Header() {
                     <Link to='/projects'>Projects</Link>
                 </Navbar.Link>
             </Navbar.Collapse>
-            <LoginRegisterModel 
-                register={register}
-                setRegister={setRegister}
-                openModal={openModal}
-                setOpenModal={setOpenModal} />
+            <Modal openModal={openModal} setOpenModal={setOpenModal}>
+                {modalContent === 'login'? <LoginRegisterForm setOpenModal={setOpenModal} setModalContent={setModalContent}/> : <PasswordResetRequestForm setModalContent={setModalContent}/>}
+            </Modal>
         </Navbar>
     );
     }

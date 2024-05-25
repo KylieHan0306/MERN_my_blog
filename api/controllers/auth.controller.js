@@ -4,7 +4,7 @@ const errorHandler = require('../utils/errorHandler.js')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
 
-async function sendVerificationEmail(email, token) {
+async function sendEmail(email, token, type) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -12,8 +12,9 @@ async function sendVerificationEmail(email, token) {
             pass: process.env.APP_PASS
         }
     });
-    const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify?token=${token}`;
-    const mailOptions = {
+    const verificationUrl = `${process.env.CLIENT_URL}/email-verify?token=${token}`;
+    const resetPasswordUrl = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+    const verifyMailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Email Verification',
@@ -23,8 +24,20 @@ async function sendVerificationEmail(email, token) {
             <a href="${verificationUrl}">Verify Email Here</a>
         `,
     };
+
+    const resetMailOptions = {
+        from: process.env.EMAIL_USER, // Sender address
+        to: email, // List of receivers
+        subject: 'Password Reset Request', // Subject line
+        html: `
+            <h1>Reset Your Password</h1>    
+            <p>You have requested a password reset. Please click the link below to reset your password:</p>
+            <a href="${resetPasswordUrl}">Reset Password Here</a>
+            <p>If you did not request this, please ignore this email.</p>
+        `,
+    };
     
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(type==='verify'? verifyMailOptions : resetMailOptions, (error, info) => {
         if (error) {
             next(errorHandler(500, "Internal server error when sending email"));
         }
@@ -56,7 +69,7 @@ const registerController = async (req, res, next) => {
             password: bcryptjs.hashSync(password, 10),
         })
         await newUser.save();
-        sendVerificationEmail(email, email_token);
+        sendEmail(email, email_token, 'verify');
         res.status(201).json({message: 'Register successed, please verify your email'});
     } catch (e) {
         next(e);
@@ -75,12 +88,12 @@ const loginController = async (req, res, next) => {
     }
     try {
         const currUser = await User.findOne({ email });
-        if(currUser.activate === false) {
-            next(errorHandler(403, "Please verify your email first"));
-            return
-        }
         if (!currUser) {
             next(errorHandler(404, "Invalid email or password."));
+            return
+        }
+        if(currUser.activate === false) {
+            next(errorHandler(403, "Please verify your email first"));
             return
         }
         const validPassword = bcryptjs.compareSync(password, currUser.password);
@@ -102,20 +115,70 @@ const loginController = async (req, res, next) => {
 
 }
 
-const emailVerifyController = async (req, res) => {
+const emailVerifyController = async (req, res, next) => {
     try {
-        const token = req.query.token;
+        const { token } = req.body;
         const decodedEmail = jwt.verify(token, process.env.JWT_SECRET_KEY).email;
         const user = await User.findOne({ email: decodedEmail });
         if (!user) {
-            next(errorHandler(400, "Invalid verification token"));
+            next(errorHandler(400, "Invalid verification token."));
             return;
         }
         // Activate email
+        if (user.activate === true) {
+            next(errorHandler(409, "This email has already been verified."));
+            return;
+        }
         user.activate = true;
         await user.save();
-        // Assuming successful verification, redirect to a success page
-        res.status(200).json({ message: 'Verification successful!, you can login to your account now' });
+        res.status(200).json({ message: 'Your email was verified, you can now login to your account.' });
+    } catch (e) {
+        if (e.name === 'TokenExpiredError') {
+            next(errorHandler(400, "Your verification session has expired."));
+            return;
+        }
+        next(errorHandler(500, "Server error during verification."));
+        return;
+    }
+}
+
+const passwordResetController = async (req, res, next) => {
+    try {
+        const { token, password  } = req.body;
+        const decodedEmail = jwt.verify(token, process.env.JWT_SECRET_KEY).email;
+        const currUser = await User.findOne({ email: decodedEmail });
+        if (!currUser) {
+            next(errorHandler(404, "You haven't registered yet."));
+            return;
+        }
+        currUser.password = bcryptjs.hashSync(password, 10);
+        currUser.save();
+        res.status(200).json({ message: 'Your password has been reset. You can now log in.' });
+    } catch (e) {
+        if (e.name === 'TokenExpiredError') {
+            next(errorHandler(400, "Your session has expired. Please try again"));
+            return;
+        }
+        next(errorHandler(500, "Server error during password setting."));
+        return;
+    }
+}
+
+const resetRequestController = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        const currUser = await User.findOne({ email: email });
+        if (!currUser) {
+            next(errorHandler(404, "You haven't registered yet."));
+            return;
+        }
+        if(currUser.activate === false) {
+            next(errorHandler(403, "Please verify your email first"));
+            return
+        }
+        const email_token = jwt.sign({ email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        sendEmail(email, email_token, 'reset');
+        res.status(200).json({ message: 'Reset link send, please check your email' });
     } catch (e) {
         if (e.name === 'TokenExpiredError') {
             next(errorHandler(400, "Your verification token has expired."));
@@ -126,8 +189,29 @@ const emailVerifyController = async (req, res) => {
     }
 }
 
+const resendEmailController = async (req, res, next) => {
+    try {
+        const { token } = req.body;
+        const decodedEmail = jwt.verify(token, process.env.JWT_SECRET_KEY).email;
+        const user = await User.findOne({ email: decodedEmail });
+        if (!user) {
+            next(errorHandler(400, "Invalid verification token"));
+            return;
+        }
+        const email_token = jwt.sign({ decodedEmail }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        sendEmail(decodedEmail, email_token, 'verify');
+        res.status(201).json({message: 'Verified email sent'});
+    } catch (e) {
+        next(errorHandler(500, "Server error during resend email."));
+        return;
+    }
+}
+
 module.exports = {
     registerController,
     loginController,
-    emailVerifyController
+    emailVerifyController,
+    resetRequestController,
+    passwordResetController,
+    resendEmailController
 }
