@@ -7,6 +7,7 @@ import Header from './components/Header'
 import PasswordReset from './pages/PasswordReset'
 import EmailVerify from './pages/EmailVerify'
 import EmailVerifySuccess from './pages/EmailVerifySuccess'
+import PrivateRoute from './components/PrivateRoute'
 import Error from './pages/Error'
 
 export default function App() {
@@ -16,12 +17,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/projects" element={<Projects />} />
-        <Route path="/reset-password" element={<PasswordReset />} /> 
         <Route path="/email-verify" element={<EmailVerify />} /> 
         <Route path="/email-verify-success" element={<EmailVerifySuccess />} /> 
         <Route path="/error" element={<Error />} /> 
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/reset-password" element={<PasswordReset />} /> 
+        </Route>
       </Routes>
     </BrowserRouter>
   )

@@ -21,19 +21,6 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
     const [ emailSent, setEmailSent ] = useState(false);
     const { loading } = useSelector(state => state.user);
     const dispatch = useDispatch();
-    const { theme } = useSelector((state) => state.theme);
-
-    
-    const errorHandle = (e) => {
-      const errorMessage = e.response.data.errMsg;
-      setLoading(false);
-      if (errorMessage === "Your verification session has expired.") {
-          setError(errorMessage); 
-          return;
-      }
-      navigate('/error', { state: { errorMessage } });
-  }
-
     
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -177,9 +164,11 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
           dispatch(loginSuccess(resB.data))
         }
       } catch (e) {
-        errorHandle(e);
+        const errorMessage = e.response.data.errMsg;
+        navigate('/error', { state: { errorMessage } });
       }
     }
+    
     return (
         <form className="flex max-w-md flex-col gap-4">
             <h3 className="text-xl font-medium text-gray-900 dark:text-white" > {register? "Register":"Login"} </h3> 

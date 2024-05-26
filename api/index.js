@@ -20,7 +20,7 @@ app.listen(3000, () => {
     console.log('app listen on port 3000')
 })
 app.use(express.json())
-app.use('/api', userRouter)
+app.use('/api/user', userRouter)
 app.use('/api/auth', authRouter)
 app.use((err, req, res, next)=> {
     const statusCode = err.statusCode || 500

@@ -21,16 +21,6 @@ export default function Header() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const errorHandle = (e) => {
-        const errorMessage = e.response.data.errMsg;
-        setLoading(false);
-        if (errorMessage === "Your verification session has expired.") {
-            setError(errorMessage); 
-            return;
-        }
-        navigate('/error', { state: { errorMessage } });
-    }
-
     const handleLogout = async () => {
         try {
             dispatch(logoutStart());
@@ -41,7 +31,8 @@ export default function Header() {
             }
         } catch (e) {
             dispatch(loginFail());
-            errorHandle(e);
+            const errorMessage = e.response.data.errMsg;
+            navigate('/error', { state: { errorMessage } });
         }
     }
 
@@ -94,6 +85,7 @@ export default function Header() {
                         label={
                             <Avatar alt='user' img={currUser.photoUrl} rounded />
                         }
+                        onClick={(e) => {e.preventDefault()}}
                     >
                         <Dropdown.Header>
                         <span className='block text-sm'>@{currUser.username}</span>
@@ -102,7 +94,7 @@ export default function Header() {
                         </span>
                         </Dropdown.Header>
                         <Link to={'/dashboard?tab=profile'}>
-                        <Dropdown.Item>Profile</Dropdown.Item>
+                            <Dropdown.Item>Profile</Dropdown.Item>
                         </Link>
                         <Dropdown.Divider />
                         <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
@@ -113,7 +105,7 @@ export default function Header() {
                         style={{
                             backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
                         }}
-                        onClick={() => {setOpenModal(true)}}
+                        onClick={(e) => {e.preventDefault(); setOpenModal(true); }}
                     >
                         Login
                     </Button>
