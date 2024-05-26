@@ -4,6 +4,8 @@ import { FaGoogle } from 'react-icons/fa';
 import axios from 'axios';
 import { loginSuccess, loginStart, loginFail } from "../store/userStore";
 import { useDispatch, useSelector } from 'react-redux';
+import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
+import { app } from '../firebase';
 
 export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
     const [register, setRegister] = useState(false);
@@ -145,6 +147,28 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
         setRegister(!register);
     }
       
+    const handleOAuth = async (e) => {
+      e.preventDefault();
+      onCloseModal();
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account '});
+      try {
+        const resG = await signInWithPopup(auth, provider);
+        console.log(resG);
+        const resB = await axios.post('/api/auth/google', {
+          name: resG.user.displayName,
+          email: resG.user.email,
+          photoUrl: resG.user.photoURL,
+        });
+        console.log(resB);
+        if (resB.status >= 200 && resB.status < 300) {
+          dispatch(loginSuccess(resB.data))
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
     return (
         <form className="flex max-w-md flex-col gap-4">
             <h3 className="text-xl font-medium text-gray-900 dark:text-white" > {register? "Register":"Login"} </h3> 
@@ -215,6 +239,7 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
             <Button
               color="white"
               className="border-2 hover:border-10"
+              onClick={handleOAuth}
             >
               <FaGoogle className="mr-2 mt-1" />
               Sign in with Google
