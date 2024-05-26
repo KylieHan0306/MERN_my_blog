@@ -21,6 +21,19 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
     const [ emailSent, setEmailSent ] = useState(false);
     const { loading } = useSelector(state => state.user);
     const dispatch = useDispatch();
+    const { theme } = useSelector((state) => state.theme);
+
+    
+    const errorHandle = (e) => {
+      const errorMessage = e.response.data.errMsg;
+      setLoading(false);
+      if (errorMessage === "Your verification session has expired.") {
+          setError(errorMessage); 
+          return;
+      }
+      navigate('/error', { state: { errorMessage } });
+  }
+
     
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -155,18 +168,16 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
       provider.setCustomParameters({ prompt: 'select_account '});
       try {
         const resG = await signInWithPopup(auth, provider);
-        console.log(resG);
         const resB = await axios.post('/api/auth/google', {
           name: resG.user.displayName,
           email: resG.user.email,
           photoUrl: resG.user.photoURL,
         });
-        console.log(resB);
         if (resB.status >= 200 && resB.status < 300) {
           dispatch(loginSuccess(resB.data))
         }
       } catch (e) {
-        console.error(e);
+        errorHandle(e);
       }
     }
     return (
@@ -238,10 +249,10 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
             </Button>
             <Button
               color="white"
-              className="border-2 hover:border-10"
+              className="border-2 hover:bg-gray-200 dark:text-white dark:hover:bg-gray-500"
               onClick={handleOAuth}
             >
-              <FaGoogle className="mr-2 mt-1" />
+              <FaGoogle className="mr-2 mt-1 dark:white" />
               Sign in with Google
             </Button>
             <div className="flex justify-between text-sm font-medium text-gray-500 dark:text-gray-300">

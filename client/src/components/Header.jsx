@@ -1,16 +1,54 @@
-import { Button, Navbar, TextInput } from 'flowbite-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Button, Navbar, TextInput, Dropdown, Avatar  } from 'flowbite-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
-import { FaMoon } from 'react-icons/fa';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import Modal from './Modal';
 import LoginRegisterForm from "./LoginRegisterForm";
 import PasswordResetRequestForm from './PasswordResetRequestForm';
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleTheme } from '../store/themeStore';
+import { logoutSuccess, logoutStart, loginFail } from '../store/userStore';
+import axios from 'axios';
 
 export default function Header() {
-    const path = useLocation().pathname;
+    const location = useLocation();
+    const path = location.pathname;
     const [openModal, setOpenModal] = useState(false);
     const [modalContent, setModalContent] = useState('login');
+    const { currUser } = useSelector((state) => state.user);
+    const { theme } = useSelector((state) => state.theme);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const errorHandle = (e) => {
+        const errorMessage = e.response.data.errMsg;
+        setLoading(false);
+        if (errorMessage === "Your verification session has expired.") {
+            setError(errorMessage); 
+            return;
+        }
+        navigate('/error', { state: { errorMessage } });
+    }
+
+    const handleLogout = async () => {
+        try {
+            dispatch(logoutStart());
+            const res = await axios.get('/api/auth/logout');
+            if (res.status >= 200 && res.status < 300) {
+                dispatch(logoutSuccess());
+                navigate('/');
+            }
+        } catch (e) {
+            dispatch(loginFail());
+            errorHandle(e);
+        }
+    }
+
+    const handleThemeChange = (e) => {
+        e.preventDefault();
+        dispatch(toggleTheme());
+    }
 
     return (
         <Navbar className='border-b-2'>
@@ -43,11 +81,33 @@ export default function Header() {
                 <Button
                     className='w-12 h-10 hidden sm:inline'
                     color='gray'
+                    onClick={handleThemeChange}
                     pill
                 >
-                <FaMoon />
+                {theme === 'light'? <FaMoon />: <FaSun />}
                 </Button>
                 <Link>
+                {currUser ? (
+                    <Dropdown
+                        arrowIcon={false}
+                        inline
+                        label={
+                            <Avatar alt='user' img={currUser.photoUrl} rounded />
+                        }
+                    >
+                        <Dropdown.Header>
+                        <span className='block text-sm'>@{currUser.username}</span>
+                        <span className='block text-sm font-medium truncate'>
+                            {currUser.email}
+                        </span>
+                        </Dropdown.Header>
+                        <Link to={'/dashboard?tab=profile'}>
+                        <Dropdown.Item>Profile</Dropdown.Item>
+                        </Link>
+                        <Dropdown.Divider />
+                        <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                    </Dropdown>
+                    ) : (
                     <Button 
                         outline
                         style={{
@@ -57,6 +117,7 @@ export default function Header() {
                     >
                         Login
                     </Button>
+                    )}
                 </Link>
                 <Navbar.Toggle />
             </div>
@@ -76,4 +137,4 @@ export default function Header() {
             </Modal>
         </Navbar>
     );
-    }
+}

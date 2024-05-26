@@ -105,7 +105,7 @@ const loginController = async (req, res, next) => {
         const { password: hashedPassword, ...withOutPassword } = currUser._doc;
         res
         .status(200)
-        .cookie('token', token, {
+        .cookie('access_token', token, {
             httpOnly: true,
         })
         .json(withOutPassword)
@@ -246,10 +246,17 @@ const googleController = async (req, res, next) => {
           .json(rest);
       }
     } catch (e) {
-        console.log(e);
         next(e);
     }
 };
+
+const logoutController = async (req, res, next) => {
+    try {
+        res.clearCookie('access_token').status(200).json('You have successfully logged out.')
+    } catch (e) {
+        next(e)
+    }
+}
 
 module.exports = {
     registerController,
@@ -258,5 +265,6 @@ module.exports = {
     resetRequestController,
     passwordResetController,
     resendEmailController,
-    googleController
+    googleController,
+    logoutController
 }
