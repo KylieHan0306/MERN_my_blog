@@ -8,7 +8,7 @@ import PasswordResetRequestForm from './PasswordResetRequestForm';
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../store/themeStore';
-import { logoutSuccess, logoutStart, loginFail } from '../store/userStore';
+import { logoutSuccess, logoutStart, logoutFail } from '../store/userStore';
 import axios from 'axios';
 
 export default function Header() {
@@ -26,11 +26,11 @@ export default function Header() {
             dispatch(logoutStart());
             const res = await axios.get('/api/auth/logout');
             if (res.status >= 200 && res.status < 300) {
-                dispatch(logoutSuccess());
                 navigate('/');
+                dispatch(logoutSuccess());
             }
         } catch (e) {
-            dispatch(loginFail());
+            dispatch(logoutFail());
             const errorMessage = e.response.data.errMsg;
             navigate('/error', { state: { errorMessage } });
         }

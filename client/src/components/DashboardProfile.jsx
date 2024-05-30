@@ -1,56 +1,152 @@
-import { Button, TextInput } from 'flowbite-react';
+import { Alert, Button, TextInput, Checkbox, Label } from 'flowbite-react';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MediumModal from './Modal';
 import DeleteUserForm from './DeleteUserForm';
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+import { app } from '../firebase';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { logoutStart, logoutSuccess, logoutFail, updateFail, updateStart, updateSuccess } from '../store/userStore';
 
 export default function DashboardProfile() {
     const { currUser, loading } = useSelector((state) => state.user);
     const [formData, setFormData] = useState({});
     const [openModal, setOpenModal] = useState(false);
+    const [photoUrl, setPhotoUrl] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(null);
+    const [uploadError, setUploadError] = useState(null);
+    const [updateError, setUpdateError] = useState(null);
+    const [emailSent, setEmailSent] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+    const imgRef = useRef();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleChange = (e) => {
+        setUpdateUserSuccess(null);
+        setUploadError(null);
+        setEmailSent(null);
+        setUpdateError(null);
         setFormData({ ...formData, [e.target.id]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('form submit');
+        try {
+            dispatch(updateStart());
+            if (photoUrl) formData.photoUrl = photoUrl;
+            const res = await axios.put(`/api/user/${currUser._id}`, formData);
+            if(res.data.message) {
+                setEmailSent(res.data.message);
+            }
+            setUpdateUserSuccess('Your profile updated successfully!');
+            dispatch(updateSuccess(res.data.user));
+        } catch(e) {
+            dispatch(updateFail());
+            const errorMessage = e.response.data.errMsg;
+            setUpdateError('Update fail: '+ errorMessage);
+        }
     };
 
-    const handleLogout = async () => {
+    const handleLogout = async (e) => {
+        e.preventDefault();
         try {
             dispatch(logoutStart());
             const res = await axios.get('/api/auth/logout');
             if (res.status >= 200 && res.status < 300) {
-                dispatch(logoutSuccess());
                 navigate('/');
+                dispatch(logoutSuccess());
             }
         } catch (e) {
-            dispatch(loginFail());
+            dispatch(logoutFail());
             const errorMessage = e.response.data.errMsg;
             navigate('/error', { state: { errorMessage } });
         }
     }
 
+    const handlePhotoUpload = async (e) => {
+        const photo = e.target.files[0];
+        if (photo) {
+            setUploadError(null);
+            setPhotoUrl(URL.createObjectURL(photo));
+            const storage = getStorage(app);
+            const photoName = currUser.email + new Date() + photo.name;
+            const storageRef = ref(storage, photoName);
+            const upload = uploadBytesResumable(storageRef, photo);
+            upload.on(
+                'state_changed',
+                (snapshot) => {
+                    setUploadProgress(((snapshot.bytesTransferred/snapshot.totalBytes) * 100).toFixed(0));
+                },
+                (error) => {
+                    setUploadError('Could not upload photo, file must be less than 2MB');
+                    setUploadProgress(null);
+                    setPhotoUrl(null);
+                },
+                () => {
+                    getDownloadURL(upload.snapshot.ref).then((url)=>{ setPhotoUrl(url) });
+                }
+            )
+        }
+
+    }
+
     return (
         <div className='max-w-lg mx-auto p-3 w-full'>
         <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
-        <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
+        <form className='flex flex-col gap-4'>
             <input
-            type='file'
-            accept='image/*'
-            hidden
+                type='file'
+                accept='image/*'
+                ref={imgRef}
+                onChange={handlePhotoUpload}
+                hidden
             />
             <div
-            className='relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full'
+                className='relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full'
+                alt="profile photo"
+                onClick={()=> {imgRef.current.click()}}
             >
-            <img
-                src={currUser.photoUrl}
-                alt='user'
-                className={`rounded-full w-full h-full object-cover border-8 border-[lightgray]`}
-            />
+                {(uploadProgress && uploadProgress < 100) && (
+                    <CircularProgressbar
+                        value={uploadProgress || 0}
+                        text={`${uploadProgress}%`}
+                        strokeWidth={5}
+                        styles={{
+                            root: {
+                            width: '100%',
+                            height: '100%',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            },
+                            path: {
+                            stroke: `rgba(62, 152, 199, ${
+                                uploadProgress / 100
+                            })`,
+                            },
+                        }}
+                    />
+                )}
+                <img
+                    src={photoUrl? photoUrl: currUser.photoUrl}
+                    alt='user'
+                    className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${
+                        uploadProgress  &&
+                        uploadProgress < 100 &&
+                        'opacity-60'
+                    }`}
+                />
             </div>
+            {uploadError && <Alert color = 'failure'>{uploadError}</Alert>}
+            {updateError && <Alert color = 'failure'>{updateError}</Alert>}
+            {emailSent && <Alert color = 'success'>{emailSent}</Alert>}
+            {updateUserSuccess && <Alert color = 'success'>{updateUserSuccess}</Alert>}
             <TextInput
                 type='text'
                 id='username'
@@ -66,15 +162,20 @@ export default function DashboardProfile() {
                 onChange={handleChange}
             />
             <TextInput
-            type='password'
-            id='password'
-            placeholder='password'
-            onChange={handleChange}
+                type={showPassword? 'text':'password'}
+                id='password'
+                placeholder='password'
+                onChange={handleChange}
             />
+            <div className="flex items-center gap-2">
+                <Checkbox id="show password" onChange={()=> {setShowPassword(!showPassword)}}/>
+                <Label htmlFor="show password">Show password</Label>
+            </div>
             <Button
                 type='submit'
                 outline
                 disabled={loading}
+                onClick={handleSubmit}
                 style={{
                     backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
                 }}
@@ -91,7 +192,7 @@ export default function DashboardProfile() {
             </span>
         </div>
         <MediumModal openModal={openModal} setOpenModal={setOpenModal}>
-                <DeleteUserForm setOpenModal={setOpenModal}/>
+            <DeleteUserForm setOpenModal={setOpenModal}/>
         </MediumModal>
         </div>
     );

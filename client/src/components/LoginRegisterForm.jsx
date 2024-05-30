@@ -6,6 +6,7 @@ import { loginSuccess, loginStart, loginFail } from "../store/userStore";
 import { useDispatch, useSelector } from 'react-redux';
 import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import { app } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
     const [register, setRegister] = useState(false);
@@ -20,6 +21,7 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
     const [showPassword, setShowPassword] = useState(false);
     const [ emailSent, setEmailSent ] = useState(false);
     const { loading } = useSelector(state => state.user);
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     
     const handleChange = (e) => {
@@ -111,10 +113,11 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
             dispatch(loginStart())
             const res = await axios.post(endpoint, formData);
             if(res.status < 300 && res.status >= 200) {
-                dispatch(loginSuccess(res.data));
                 if (!register) {
+                  dispatch(loginSuccess(res.data));
                   onCloseModal();
                 } else {
+                  dispatch(loginFail());
                   setEmailSent(true);
                 }
             }
@@ -125,6 +128,13 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
             if (errorMessage.indexOf('E11000') !== -1) {
                 errorMessage.indexOf('email') !== -1 ? setEmailError('Email already taken') : setUsernameError('Username already taken');
                 dispatch(loginFail());
+                return;
+            }
+            // Internal Server Error
+            if (e.response.status === 500) {
+                dispatch(loginFail());
+                navigate('/error', { state: { errorMessage: 'Internal Server Error' } });
+                setOpenModal(false);
                 return;
             }
             setEmailError(errorMessage);

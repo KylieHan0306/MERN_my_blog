@@ -19,10 +19,11 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/email-verify" element={<EmailVerify />} /> 
+        <Route path="/email-change" element={<EmailVerify />} /> 
         <Route path="/email-verify-success" element={<EmailVerifySuccess />} /> 
         <Route path="/error" element={<Error />} /> 
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reset-password" element={<PasswordReset />} /> 
         </Route>
       </Routes>

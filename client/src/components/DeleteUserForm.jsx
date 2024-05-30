@@ -17,7 +17,7 @@ export default function DeleteUserForm({ setOpenModal }) {
         //setOpenModal(false);
         try {
             dispatch(deleteStart());
-            const res = await axios.delete(`/api/user/delete/${currUser._id}`);
+            const res = await axios.delete(`/api/user/${currUser._id}`);
             if (res.status >= 200 && res.status < 300) {
                 dispatch(deleteSuccess());
                 navigate('/');
@@ -27,7 +27,6 @@ export default function DeleteUserForm({ setOpenModal }) {
                 navigate('/error', { state: { errorMessage } });
             }
         } catch (e) {
-            console.error(e);
             dispatch(deleteFail());
             navigate('/error', { state: { e } });
         }

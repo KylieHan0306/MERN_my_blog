@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const userRouter = require('./routes/user.route.js')
 const authRouter = require('./routes/auth.route.js')
+const cookieParser = require('cookie-parser');
 
 dotenv.config()
 
@@ -19,6 +20,7 @@ const app = express()
 app.listen(3000, () => {
     console.log('app listen on port 3000')
 })
+app.use(cookieParser());
 app.use(express.json())
 app.use('/api/user', userRouter)
 app.use('/api/auth', authRouter)

@@ -1,30 +1,43 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { updateSuccess } from '../store/userStore';
+import { useDispatch } from 'react-redux';
 
 export default function EmailVerified () {
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get('token');
+    const dispatch = useDispatch();
 
     const errorHandle = (e) => {
         const errorMessage = e.response.data.errMsg;
         setLoading(false);
         if (errorMessage === "Your verification session has expired.") {
-            setError(errorMessage); 
-            return;
+            if (location.pathname==='email-verify') {
+                setError(errorMessage); 
+                return;
+            } else {
+                navigate('/error', { state: { errorMessage: "Your update email session has expired, try again" } });
+            }
         }
-        navigate('/error', { state: { errorMessage } });
+        //navigate('/error', { state: { errorMessage } });
     }
 
     const verify = async () => {
         try {
-            const res = await axios.post('/api/auth/verify', { token });
+            const res = await axios.post(location.pathname==='/email-verify'? '/api/auth/verify': '/api/user/email-update', { token });
             if(res.status < 300 && res.status >= 200) {
-                navigate('/email-verify-success');
+                if (res.data.user) {
+                    dispatch(updateSuccess(res.data.user));
+                    navigate('/email-verify-success', {state: {message: 'Your new email was verified.'}});
+                } else {
+                    navigate('/email-verify-success', {state: {message: 'Your email was verified, you can now login to your account.'}});
+                }
             }
         } catch (e) {
             errorHandle(e);

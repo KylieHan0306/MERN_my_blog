@@ -16,7 +16,8 @@ export default function PasswordResetPage() {
   const token = queryParams.get('token');
   const navigate = useNavigate();
 
-  const handlePasswordReset = async () => {
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
     if (!passwordValidation(password) || password.length === 0) {
       setPasswordError("Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*(),.?\":{}|<>).");
       return false;
