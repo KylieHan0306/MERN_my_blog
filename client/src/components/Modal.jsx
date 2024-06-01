@@ -1,7 +1,7 @@
 import { Modal } from "flowbite-react";
 import { useSelector } from 'react-redux';
 
-export default function MediumModal({ openModal, setOpenModal, children }) {
+export default function ModalBox({ openModal, setOpenModal, children }) {
   const { theme } = useSelector((state) => state.theme);
 
   return (

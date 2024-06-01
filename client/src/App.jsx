@@ -8,6 +8,9 @@ import PasswordReset from './pages/PasswordReset'
 import EmailVerify from './pages/EmailVerify'
 import EmailVerifySuccess from './pages/EmailVerifySuccess'
 import PrivateRoute from './components/PrivateRoute'
+import AdminRoute from './components/AdminRoute'
+import UpdatePost from './pages/UpdatePost'
+import CreatePost from './pages/CreatePost'
 import Error from './pages/Error'
 
 export default function App() {
@@ -26,6 +29,10 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/reset-password" element={<PasswordReset />} /> 
         </Route>
+        {/*<Route element={<AdminRoute />}>*/}
+          <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/update-post/:postId" element={<UpdatePost />} />
+        {/*</Route>*/}
       </Routes>
     </BrowserRouter>
   )

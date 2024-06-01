@@ -1,7 +1,7 @@
 import { Alert, Button, TextInput, Checkbox, Label } from 'flowbite-react';
 import { useSelector } from 'react-redux';
-import { useEffect, useRef, useState } from 'react';
-import MediumModal from './Modal';
+import { useRef, useState } from 'react';
+import ModalBox from './Modal';
 import DeleteUserForm from './DeleteUserForm';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { CircularProgressbar } from 'react-circular-progressbar';
@@ -10,6 +10,7 @@ import { app } from '../firebase';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { logoutStart, logoutSuccess, logoutFail, updateFail, updateStart, updateSuccess } from '../store/userStore';
 
 export default function DashboardProfile() {
@@ -72,29 +73,34 @@ export default function DashboardProfile() {
     const handlePhotoUpload = async (e) => {
         const photo = e.target.files[0];
         if (photo) {
-            setUploadError(null);
-            setPhotoUrl(URL.createObjectURL(photo));
-            const storage = getStorage(app);
-            const photoName = currUser.email + new Date() + photo.name;
-            const storageRef = ref(storage, photoName);
-            const upload = uploadBytesResumable(storageRef, photo);
-            upload.on(
-                'state_changed',
-                (snapshot) => {
-                    setUploadProgress(((snapshot.bytesTransferred/snapshot.totalBytes) * 100).toFixed(0));
-                },
-                (error) => {
-                    setUploadError('Could not upload photo, file must be less than 2MB');
-                    setUploadProgress(null);
-                    setPhotoUrl(null);
-                },
-                () => {
-                    getDownloadURL(upload.snapshot.ref).then((url)=>{ setPhotoUrl(url) });
-                }
-            )
+            try{
+                setUploadError(null);
+                setPhotoUrl(URL.createObjectURL(photo));
+                const storage = getStorage(app);
+                const photoName = currUser.email + new Date() + photo.name;
+                const storageRef = ref(storage, photoName);
+                const upload = uploadBytesResumable(storageRef, photo);
+                upload.on(
+                    'state_changed',
+                    (snapshot) => {
+                        setUploadProgress(((snapshot.bytesTransferred/snapshot.totalBytes) * 100).toFixed(0));
+                    },
+                    (error) => {
+                        setUploadError('Could not upload photo, file must be less than 2MB');
+                        setUploadProgress(null);
+                        setPhotoUrl(null);
+                    },
+                    () => {
+                        getDownloadURL(upload.snapshot.ref).then((url)=>{ setPhotoUrl(url) });
+                    }
+                )
+            } catch (e) {
+                setUploadError('An error occurred while uploading the image.');
+            }
+        } else {
+          setUploadError('Please upload an image');
         }
-
-    }
+    };
 
     return (
         <div className='max-w-lg mx-auto p-3 w-full'>
@@ -191,9 +197,9 @@ export default function DashboardProfile() {
                 Logout
             </span>
         </div>
-        <MediumModal openModal={openModal} setOpenModal={setOpenModal}>
+        <ModalBox openModal={openModal} setOpenModal={setOpenModal}>
             <DeleteUserForm setOpenModal={setOpenModal}/>
-        </MediumModal>
+        </ModalBox>
         </div>
     );
 }

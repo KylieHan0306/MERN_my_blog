@@ -2,7 +2,7 @@ import { Button, Navbar, TextInput, Dropdown, Avatar  } from 'flowbite-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
-import Modal from './Modal';
+import ModalBox from './Modal';
 import LoginRegisterForm from "./LoginRegisterForm";
 import PasswordResetRequestForm from './PasswordResetRequestForm';
 import { useState } from 'react';
@@ -70,14 +70,13 @@ export default function Header() {
             </Button>
             <div className='flex gap-2 md:order-2'>
                 <Button
-                    className='w-12 h-10 hidden sm:inline'
+                    className='w-12 h-10 sm:inline'
                     color='gray'
                     onClick={handleThemeChange}
                     pill
                 >
-                {theme === 'light'? <FaMoon />: <FaSun />}
+                    {theme === 'light'? <FaMoon />: <FaSun />}
                 </Button>
-                <Link>
                 {currUser ? (
                     <Dropdown
                         arrowIcon={false}
@@ -110,7 +109,6 @@ export default function Header() {
                         Login
                     </Button>
                     )}
-                </Link>
                 <Navbar.Toggle />
             </div>
             <Navbar.Collapse>
@@ -120,13 +118,16 @@ export default function Header() {
                 <Navbar.Link active={path === '/about'} as={'div'}>
                     <Link to='/about'>About</Link>
                 </Navbar.Link>
+                <Navbar.Link active={path === '/create-post'} as={'div'}>
+                    <Link to='/create-post'>Create Posts</Link>
+                </Navbar.Link>
                 <Navbar.Link active={path === '/projects'} as={'div'}>
                     <Link to='/projects'>Projects</Link>
                 </Navbar.Link>
             </Navbar.Collapse>
-            <Modal openModal={openModal} setOpenModal={setOpenModal}>
+            <ModalBox openModal={openModal} setOpenModal={setOpenModal}>
                 {modalContent === 'login'? <LoginRegisterForm setOpenModal={setOpenModal} setModalContent={setModalContent}/> : <PasswordResetRequestForm setModalContent={setModalContent}/>}
-            </Modal>
+            </ModalBox>
         </Navbar>
     );
 }
