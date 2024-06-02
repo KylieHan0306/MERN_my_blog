@@ -5,14 +5,11 @@ const sendEmail = require('../utils/sendEmail.js')
 const errorHandler = require('../utils/errorHandler.js')
 const { validPassword, validUsername, validEmail } = require('../utils/validation.js')
 
-const userController = (req, res) => {
-    res.json({message: 'user router is on'})
-}
-
 const deleteUserController = async (req, res, next) => {
+    if (!req.user.isAdmin && req.user.id !== req.params.id) return next(errorHandler(403, 'You are not allowed to delete this user'))
     try {
         await User.findOneAndDelete(req.params.id)
-        res.status(200).json('Your account has been deleted')
+        res.status(200).json('The user has been deleted')
     } catch (e) {
         next(e)
     }
@@ -82,9 +79,36 @@ const changeEmailController = async (req, res, next) => {
 
 }
 
+const getUsersController = async (req, res, next) => {
+    if (req.user.id !== req.params.id) return next(errorHandler(403, 'You are not allow to see all the users'));
+    if (!req.user.isAdmin) return next(errorHandler(403, 'You are not allow to see all the users'));
+    try {
+        const startIndex = req.query.startIndex || 0;
+        const order = req.query.order === 'asc'? 1:-1;
+        const limit = req.query.limit || 9;
+        const users = await User.find().sort({ createAt: order }).skip(startIndex).limit(limit);
+        const usersWithoutPass = users.map((user) => {
+            const {password, ...withoutPass} = user._doc;
+            return withoutPass;
+        })
+        const now = new Date();
+        const lastMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            now.getDate()
+        )
+        const usersCount = await User.countDocuments();
+        const usersLastMonth = await User.countDocuments({ createdAt: {$gte: lastMonth} });
+
+        res.status(200).json({usersCount, usersLastMonth, usersWithoutPass});
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
-    userController,
     deleteUserController,
     updateUserController,
-    changeEmailController
+    changeEmailController,
+    getUsersController
 }

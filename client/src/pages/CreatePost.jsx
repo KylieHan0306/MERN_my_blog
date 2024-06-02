@@ -18,8 +18,8 @@ import axios from 'axios';
 
 export default function CreatePost() {
   const [photo, setPhoto] = useState(null);
-  const { currUser, loading } = useSelector((state) => state.user);
-  const [formData, setFormData] = useState({category: 'javascript'});
+  const { currUser } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({category: 'javascript', owner: currUser?.username});
   const [publishError, setPublishError] = useState(null);
   const [photoUrl, setPhotoUrl] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(null);

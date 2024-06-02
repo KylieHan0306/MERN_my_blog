@@ -1,5 +1,5 @@
 import { Sidebar } from 'flowbite-react';
-import { HiUser, HiArrowSmRight, HiDocumentText } from 'react-icons/hi';
+import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup } from 'react-icons/hi';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,7 +36,6 @@ export default function DashboardSidebar() {
                 dispatch(logoutSuccess());
             }
         } catch (e) {
-            console.log(e);
             dispatch(logoutFail());
             const errorMessage = e.response.data.errMsg;
             navigate('/error', { state: { errorMessage } });
@@ -57,15 +56,37 @@ export default function DashboardSidebar() {
                     Profile
                 </Sidebar.Item>
             </Link>
-            <Link to='/dashboard?tab=posts'>
+            <Link to='/dashboard?tab=my-posts'>
               <Sidebar.Item
-                active={tab === 'posts'}
+                active={tab === 'my-posts'}
                 icon={HiDocumentText}
                 as='div'
               >
-                Posts
+                My Posts
               </Sidebar.Item>
             </Link>
+            {currUser?.isAdmin && 
+                <>
+                <Link to='/dashboard?tab=all-posts'>
+                    <Sidebar.Item
+                        active={tab === 'all posts'}
+                        icon={HiDocumentText}
+                        as='div'
+                    >
+                        All Posts
+                    </Sidebar.Item>
+                </Link>
+                <Link to='/dashboard?tab=users'>
+                    <Sidebar.Item
+                        active={tab === 'users'}
+                        icon={HiOutlineUserGroup}
+                        as='div'
+                    >
+                        Users
+                    </Sidebar.Item>
+                </Link>
+                </>
+            }
             <Sidebar.Item
                 icon={HiArrowSmRight}
                 className='cursor-pointer'

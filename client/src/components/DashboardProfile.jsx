@@ -140,7 +140,7 @@ export default function DashboardProfile() {
                     />
                 )}
                 <img
-                    src={photoUrl? photoUrl: currUser.photoUrl}
+                    src={photoUrl? photoUrl: currUser?.photoUrl}
                     alt='user'
                     className={`rounded-full w-full h-full object-cover border-8 border-[lightgray] ${
                         uploadProgress  &&

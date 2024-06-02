@@ -1,14 +1,9 @@
 const Post = require('../models/post.model.js');
+const errorHandler = require('../utils/errorHandler.js');
 
 const createPostController = async (req, res, next) => {
-    if (!req.user.isAdmin) {
-        return next(errorHandler(403, 'You are not allowed to create a post'));
-    }
     if (!req.body.title || !req.body.content) {
         return next(errorHandler(400, 'Please provide all required fields'));
-    }
-    if (req.body.sandBoxUrl) {
-
     }
     const slug = req.body.title.trim(' ').split(' ').join('-').toLowerCase().replace(/[^a-zA-Z0-9-]/g, '');
     const newPost = new Post({
@@ -70,7 +65,8 @@ const getPostsController = async (req, res, next) => {
 }
 
 const deletePostController = async (req, res, next) => {
-    if (req.params.userId !== req.user.id) return next(errorHandler(403, 'You are not allowed to delete this post')); 
+    // Only admin and the post's owner can delete the post
+    if (!req.user.isAdmin && req.params.userId !== req.user.id) return next(errorHandler(403, 'You are not allowed to delete this post')); 
     try {
         await Post.findOneAndDelete({ _id: req.params.postId });
         res.status(200).json('Post deleted successfully');
@@ -101,7 +97,7 @@ const updatePostController = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-  };
+};
 
 module.exports = {
     createPostController,

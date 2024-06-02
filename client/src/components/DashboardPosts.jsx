@@ -8,7 +8,7 @@ import ModalBox from './Modal';
 import DeletePostContent from './DeletePostContent';
 import { useNavigate } from 'react-router-dom';
 
-export default function DashboardPosts() {
+export default function DashboardPosts({ postType }) {
   const [posts, setPosts] = useState([]);
   const { currUser } = useSelector((state)=> state.user);
   const [openModal, setOpenModal] = useState(false);
@@ -18,7 +18,8 @@ export default function DashboardPosts() {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(`/api/post?userId=${currUser._id}`);
+      const endPoint = postType === 'all'? `/api/post`: `/api/post?userId=${currUser?._id}`;
+      const res = await axios.get(endPoint);
       if (res.status === 200) setPosts(res.data.posts);
       // no more posts
       if (res.data.posts.length < 9) setShowMore(false);
@@ -44,13 +45,11 @@ export default function DashboardPosts() {
   const handleShowMore = async () => {
     const startIndex = posts.length;
     try {
-      const res = await fetch(
-        `/api/post?userId=${currUser._id}&startIndex=${startIndex}`
-      );
-      const data = await res.json();
-      if (res.ok) {
-        setPosts((prev) => [...prev, ...data.posts]);
-        if (data.posts.length < 9) {
+      const endPoint = postType === 'all'? `/api/post?startIndex=${startIndex}`: `/api/post?userId=${currUser._id}&startIndex=${startIndex}`;
+      const res = await axios.get(endPoint);
+      if (res.status === 200) {
+        setPosts((prev) => [...prev, ...res.data.posts]);
+        if (res.data.posts.length < 9) {
           setShowMore(false);
         }
       }
@@ -61,7 +60,7 @@ export default function DashboardPosts() {
 
   useEffect(() => {
     fetchPosts();
-  },[currUser._id])
+  },[currUser?._id])
   
   return (
     <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
@@ -73,10 +72,14 @@ export default function DashboardPosts() {
               <Table.HeadCell>Post image</Table.HeadCell>
               <Table.HeadCell>Post title</Table.HeadCell>
               <Table.HeadCell>Category</Table.HeadCell>
+              <Table.HeadCell>Owner</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
-              <Table.HeadCell>
-                <span>Edit</span>
-              </Table.HeadCell>
+              {/* User can ony edit their own post */}
+              {postType !== 'all' && 
+                <Table.HeadCell>
+                  <span>Edit</span>
+                </Table.HeadCell>
+              }
             </Table.Head>
             {posts.map((post) => (
               <Table.Body className='divide-y' key={post._id}>
@@ -102,6 +105,7 @@ export default function DashboardPosts() {
                     </Link>
                   </Table.Cell>
                   <Table.Cell>{post.category}</Table.Cell>
+                  <Table.Cell>{post.owner}</Table.Cell>
                   <Table.Cell>
                     <span
                       onClick={() => {
@@ -113,14 +117,16 @@ export default function DashboardPosts() {
                       Delete
                     </span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <Link
-                      className='text-teal-500 hover:underline'
-                      to={`/update-post/${post._id}`}
-                    >
-                      <span>Edit</span>
-                    </Link>
-                  </Table.Cell>
+                  {postType !== 'all' && 
+                    <Table.Cell>
+                      <Link
+                        className='text-teal-500 hover:underline'
+                        to={`/update-post/${post._id}`}
+                      >
+                        <span>Edit</span>
+                      </Link>
+                    </Table.Cell>
+                  }
                 </Table.Row>
               </Table.Body>
             ))}
