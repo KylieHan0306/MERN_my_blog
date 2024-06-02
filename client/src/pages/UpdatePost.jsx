@@ -36,7 +36,6 @@ export default function UpdatePost() {
         try {
             if (!postId) navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
             const res = await axios.get(`/api/post?postId=${postId}`);
-            console.log(res);
             if (res.status === 200) {
                 setFormData(res.data.posts[0]);
             }
@@ -68,7 +67,7 @@ export default function UpdatePost() {
                         setUploadProgress(null);
                     },
                     () => {
-                        getDownloadURL(upload.snapshot.ref).then((url)=>{setFormData({...formData, image:url }); });
+                        getDownloadURL(upload.snapshot.ref).then((url)=>{setFormData({...formData, photoUrl:url }); });
                     }
                 )
             } catch (e) {
@@ -91,7 +90,6 @@ export default function UpdatePost() {
                 navigate(`/post/${res.data.slug}`);
             }
         } catch (e) {
-            console.log(e);
             const errorMessage = e.response.data.errMessage;
             if (errorMessage.indexOf('E11000') !== -1) {
                 setUpdateError('Title already taken');

@@ -48,7 +48,7 @@ export default function CreatePost() {
                 setPhotoUrl(null);
             },
             () => {
-                getDownloadURL(upload.snapshot.ref).then((url)=>{ setPhotoUrl(url); setFormData({...formData, image:url }); });
+                getDownloadURL(upload.snapshot.ref).then((url)=>{ setPhotoUrl(url); setFormData({...formData, photoUrl:url }); });
             }
         )
       } catch (e) {

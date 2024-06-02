@@ -4,6 +4,7 @@ const dotenv = require('dotenv')
 const userRouter = require('./routes/user.route.js')
 const authRouter = require('./routes/auth.route.js')
 const postRouter = require('./routes/post.route.js')
+const commentRouter = require('./routes/comment.route.js')
 const cookieParser = require('cookie-parser')
 
 dotenv.config()
@@ -26,6 +27,7 @@ app.use(express.json())
 app.use('/api/user', userRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/post', postRouter)
+app.use('/api/comment', commentRouter)
 app.use((err, req, res, next)=> {
     const statusCode = err.statusCode || 500
     const errMsg = err.message || "Internal server error"

@@ -41,7 +41,7 @@ export default function DashboardProfile() {
         try {
             dispatch(updateStart());
             if (photoUrl) formData.photoUrl = photoUrl;
-            const res = await axios.put(`/api/user/${currUser._id}`, formData);
+            const res = await axios.put(`/api/user/${currUser?._id}`, formData);
             if(res.data.message) {
                 setEmailSent(res.data.message);
             }
@@ -77,7 +77,7 @@ export default function DashboardProfile() {
                 setUploadError(null);
                 setPhotoUrl(URL.createObjectURL(photo));
                 const storage = getStorage(app);
-                const photoName = currUser.email + new Date() + photo.name;
+                const photoName = currUser?.email + new Date() + photo.name;
                 const storageRef = ref(storage, photoName);
                 const upload = uploadBytesResumable(storageRef, photo);
                 upload.on(
@@ -157,14 +157,14 @@ export default function DashboardProfile() {
                 type='text'
                 id='username'
                 placeholder='username'
-                defaultValue={currUser.username}
+                defaultValue={currUser?.username}
                 onChange={handleChange}
             />
             <TextInput
                 type='email'
                 id='email'
                 placeholder='email'
-                defaultValue={currUser.email}
+                defaultValue={currUser?.email}
                 onChange={handleChange}
             />
             <TextInput

@@ -57,7 +57,7 @@ export default function DashboardPosts({ postType }) {
       navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
     }
   };
-
+  
   useEffect(() => {
     fetchPosts();
   },[currUser?._id])

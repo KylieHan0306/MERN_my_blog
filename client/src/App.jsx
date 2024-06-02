@@ -8,14 +8,16 @@ import PasswordReset from './pages/PasswordReset'
 import EmailVerify from './pages/EmailVerify'
 import EmailVerifySuccess from './pages/EmailVerifySuccess'
 import PrivateRoute from './components/PrivateRoute'
-import AdminRoute from './components/AdminRoute'
+import Post from './pages/Post'
 import UpdatePost from './pages/UpdatePost'
 import CreatePost from './pages/CreatePost'
 import Error from './pages/Error'
+import ScrollTop from './components/ScrollTop'
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollTop />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -33,6 +35,7 @@ export default function App() {
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/update-post/:postId" element={<UpdatePost />} />
         {/*</Route>*/}
+        <Route path="/post/:slug" element={<Post />} />
       </Routes>
     </BrowserRouter>
   )

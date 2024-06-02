@@ -87,7 +87,7 @@ const updatePostController = async (req, res, next) => {
                 content: req.body.content,
                 category: req.body.category,
                 code: req.body.code,
-                image: req.body.image,
+                photoUrl: req.body.photoUrl,
                 slug: req.body.slug
             },
             },
