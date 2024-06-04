@@ -2,7 +2,7 @@ import React from 'react'
 import { Button } from 'flowbite-react';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
-export default function DeleteCommentContent() {
+export default function DeleteCommentContent({setOpenModal, handleDelete}) {
   return (
     <div className='text-center'>
         <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
@@ -12,11 +12,11 @@ export default function DeleteCommentContent() {
         <div className='flex justify-center gap-4'>
         <Button
             color='failure'
-            onClick={() => handleDelete(commentToDelete)}
+            onClick={handleDelete}
         >
             Yes, I'm sure
         </Button>
-        <Button color='gray' onClick={() => setShowModal(false)}>
+        <Button color='gray' onClick={() => setOpenModal(false)}>
             No, cancel
         </Button>
         </div>

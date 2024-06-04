@@ -3,12 +3,13 @@ const Comment = require('../models/comment.model.js');
 
 const createCommentController = async (req, res, next) => {
     try {
-        const { content, userId, postId } = req.body;
+        const { content, userId, postId, commentId } = req.body;
         if (userId !== req.user.id) return next(errorHandler(401, 'Unauthorized'));
         const comment = new Comment({
             content,
             userId, 
-            postId
+            postId,
+            commentId
         })
         await comment.save();
         res.status(201).json(comment);
@@ -56,9 +57,22 @@ const editCommentController = async (req, res, next) => {
     }
 }
 
+const deleteCommentController = async (req, res, next) => {
+    try {
+      const comment = await Comment.findById(req.params.id);
+      if (!comment) return next(errorHandler(404, 'Comment not found'));
+      if (comment.userId !== req.user.id && !req.user.isAdmin) return next(errorHandler(403, 'You are not allowed to delete this comment'));
+      await Comment.findByIdAndDelete(req.params.id);
+      res.status(200).json('Comment has been deleted');
+    } catch (error) {
+      next(error);
+    }
+};
+
 module.exports = {
     createCommentController,
     getCommentsController,
     likeCommentController,
-    editCommentController
+    editCommentController,
+    deleteCommentController
 }

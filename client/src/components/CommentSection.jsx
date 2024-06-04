@@ -5,13 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import Comment from './Comment';
 import axios from 'axios';
 import ModalBox from './Modal';
+import DeleteCommentContent from './DeleteCommentContent';
 
 export default function CommentSection({ postId }) {
     const { currUser } = useSelector((state) => state.user);
     const [comment, setComment] = useState('');
     const [commentError, setCommentError] = useState(null);
     const [comments, setComments] = useState([]);
-    const [showModal, setShowModal] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [openLoginModal, setOpenLoginModal] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function CommentSection({ postId }) {
                 content: comment,
                 postId,
                 userId: currUser._id,
+                commentId: null
             });
             console.log(res.data);
             if (res.status === 201) {
@@ -54,27 +56,6 @@ export default function CommentSection({ postId }) {
         fetchComments();
     }, [postId]);
 
-    const handleLike = async (commentId) => {
-        try {
-            if(!currUser) return setOpenLoginModal(true);
-            const res = await axios.put(`/api/comment/like/${commentId}`);
-            if (res.status === 200) {
-                setComments(
-                    comments.map((comment) =>
-                        comment._id === commentId
-                        ? {
-                            ...comment,
-                            likes: res.data.likes,
-                        }
-                        : comment
-                    )       
-                );
-            }
-        } catch (error) {
-            console.error(error.message);
-        }
-    };
-
     const handleEdit = async (comment, editedContent) => {
         setComments(
             comments.map((c) =>
@@ -83,13 +64,19 @@ export default function CommentSection({ postId }) {
         );
     };
 
-    const handleDelete = async (commentId) => {
-        setShowModal(false);
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        setOpenModal(false);
+        if (!currUser) return setOpenLoginModal(true);
         try {
-            if (!currUser) setOpenLoginModal(true);
+            const res = await axios.delete(`/api/comment/delete/${commentToDelete}`)
+            if (res.status === 200) {
+                setComments(comments.filter((comment) => comment._id !== commentToDelete));
+            }
         } catch (error) {
             console.log(error.message);
         }
+
     };
   
     return (
@@ -111,7 +98,7 @@ export default function CommentSection({ postId }) {
             </div>
         ) : (
             <div className='text-sm text-teal-500 my-5 flex gap-1'>
-            You must be signed in to comment.
+                You must be signed in to comment.
             <Link className='text-blue-500 hover:underline' to={'/sign-in'}>
                 Sign In
             </Link>
@@ -151,21 +138,25 @@ export default function CommentSection({ postId }) {
             </form>
         )}
         {comments.map((comment) => (
-            <Comment
-                key={comment._id}
-                comment={comment}
-                handleLike={handleLike}
-                onEdit={handleEdit}
-                onDelete={(commentId) => {
-                    setShowModal(true);
-                    setCommentToDelete(commentId);
-                }}
-            />
+            comment.commentId === null && 
+                <Comment
+                    key={comment._id}
+                    comment={comment}
+                    comments={comments.filter((c) => c.commentId !== null)}
+                    onEdit={handleEdit}
+                    onDelete={(commentId) => {
+                        setOpenModal(true);
+                        setCommentToDelete(commentId);
+                    }}
+                />
         ))}
         <ModalBox openModal={openLoginModal} setOpenModal={setOpenLoginModal}>
             <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
                 Please login first
             </h3>
+        </ModalBox>
+        <ModalBox openModal={openModal} setOpenModal={setOpenModal}>
+            <DeleteCommentContent setOpenModal={setOpenModal} handleDelete={handleDelete} />
         </ModalBox>
         </div>
     );
