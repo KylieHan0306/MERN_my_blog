@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
 
 const commentSchema = mongoose.Schema({
     content: {
@@ -17,8 +18,8 @@ const commentSchema = mongoose.Schema({
         type: Array,
         default: []
     },
-    commentId: {
-        type: String
+    parentId: {
+        type: ObjectId
     }
 }, { timestamps: true });
 

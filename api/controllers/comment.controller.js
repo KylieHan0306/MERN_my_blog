@@ -1,15 +1,21 @@
 const errorHandler = require('../utils/errorHandler.js');
 const Comment = require('../models/comment.model.js');
+const { ObjectId } = require('mongodb');
 
 const createCommentController = async (req, res, next) => {
     try {
-        const { content, userId, postId, commentId } = req.body;
+        const { content, userId, postId, parentId } = req.body;
         if (userId !== req.user.id) return next(errorHandler(401, 'Unauthorized'));
+        let parentObjectId = null;
+
+        if (parentId && ObjectId.isValid(parentId)) {
+            parentObjectId = new ObjectId(parentId);
+        }
         const comment = new Comment({
             content,
             userId, 
             postId,
-            commentId
+            parentId: parentObjectId,
         })
         await comment.save();
         res.status(201).json(comment);
@@ -48,7 +54,7 @@ const likeCommentController = async (req, res, next) => {
 
 const editCommentController = async (req, res, next) => {
     try {
-        if(req.body.userId !== req.user.id) return next(errorHandler(403, 'You are not allowed to delete this comment'));
+        if(req.body.userId !== req.user.id) return next(errorHandler(403, 'You are not allowed to edit this comment'));
         const comment = await Comment.findByIdAndUpdate(req.params.id, {content: req.body.content}, {new: true})
         if (!comment) return next(errorHandler(404, 'Comment not found'));
         res.status(200).json(comment)
@@ -59,13 +65,44 @@ const editCommentController = async (req, res, next) => {
 
 const deleteCommentController = async (req, res, next) => {
     try {
-      const comment = await Comment.findById(req.params.id);
-      if (!comment) return next(errorHandler(404, 'Comment not found'));
-      if (comment.userId !== req.user.id && !req.user.isAdmin) return next(errorHandler(403, 'You are not allowed to delete this comment'));
-      await Comment.findByIdAndDelete(req.params.id);
-      res.status(200).json('Comment has been deleted');
+        const comment = await Comment.findById(req.params.id);
+        if (!comment) return next(errorHandler(404, 'Comment not found'));
+        if (comment.userId !== req.user.id) return next(errorHandler(403, 'You are not allowed to delete this comment'));
+
+        // Use aggregation to find all nested comments that are children of the comment to be deleted
+        const commentsToDelete = await Comment.aggregate([
+            {
+                $match: {
+                    _id: comment._id,
+                },
+            },
+            {
+                $graphLookup: {
+                    from: 'comments', // Name of the collection
+                    startWith: '$_id',
+                    connectFromField: '_id',
+                    connectToField: 'parentId',
+                    as: 'descendants',
+                },
+            },
+            {
+                $project: {
+                    allComments: {
+                        $concatArrays: [['$_id'], '$descendants._id'],
+                    },
+                },
+            },
+        ]);
+
+        // Extract all comment IDs to delete
+        const commentIdsToDelete = commentsToDelete.length > 0 ? commentsToDelete[0].allComments : [];
+        if (commentIdsToDelete.length === 0)  return next(errorHandler(404, 'No comments found to delete'));
+
+        // Perform a single delete operation with all comment IDs
+        await Comment.deleteMany({ _id: { $in: commentIdsToDelete } });
+        res.status(200).json('Comments have been deleted');
     } catch (error) {
-      next(error);
+        next(error);
     }
 };
 

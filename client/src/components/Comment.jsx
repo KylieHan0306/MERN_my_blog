@@ -4,8 +4,11 @@ import { FaThumbsUp } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { Button, Textarea, TextInput } from 'flowbite-react';
 import axios from 'axios';
+import ModalBox from './Modal';
+import DeleteCommentContent from './DeleteCommentContent';
 
-export default function Comment({ comment, comments, onEdit, onDelete }) {
+
+export default function Comment({ comment, comments, onDelete }) {
     const [user, setUser] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
@@ -14,6 +17,9 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
     const [nestedComment, setNestedComment] = useState(null);
     const [nestedComments, setNestedComments] = useState(comments);
     const [commentState, setCommentState] = useState(comment);
+    const [commentToDelete, setCommentToDelete] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
+    const [openLoginModal, setOpenLoginModal] = useState(false);
     
     const getUser = async () => {
         try {
@@ -30,24 +36,19 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
         getUser();
     }, [comment]);
 
-    const handleEdit = () => {
-        setIsEditing(true);
-        setEditedContent(comment.content);
-    };
-
     const handleSave = async (e) => {
         e.preventDefault();
         try {
             const res = await axios.put(`/api/comment/update/${comment._id}`, {content: editedContent, userId: comment.userId});
             if (res.status === 200) {
-                onEdit(comment, editedContent);
                 setIsEditing(false);
+                setCommentState(res.data);
             }
         } catch (error) {
             console.error(error);
         }
     }
-
+    
     const addNestedComments = async (e) => {
         e.preventDefault();
 
@@ -55,7 +56,7 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
             content: nestedComment,
             postId: comment.postId,
             userId: currUser._id,
-            commentId: comment._id
+            parentId: comment._id
         };
         if(!currUser) return setOpenLoginModal(true);
         if (nestedComment.length > 200) {
@@ -64,6 +65,7 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
         try {
             const res = await axios.post('/api/comment/create', newNestedComment);
             if (res.status === 201) {
+                setNestedComments([...nestedComments, res.data]);
                 setNestedComment('');
                 setReplying(false);
             }
@@ -84,6 +86,21 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
         }
     };
 
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        setOpenModal(false);
+        if (!currUser) return setOpenLoginModal(true);
+        try {
+            const res = await axios.delete(`/api/comment/delete/${commentToDelete}`)
+            if (res.status === 200) {
+                setNestedComments(nestedComments.filter((comment) => comment._id !== commentToDelete));
+                setCommentToDelete(null);
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+  
     return (
         <div className='flex p-4 border-b dark:border-gray-600 text-sm'>
         <div className='flex-shrink-0 mr-3'>
@@ -134,7 +151,7 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
             </>
             ) : (
             <>
-                <p className='text-gray-500 pb-2'>{comment.content}</p>
+                <p className='text-gray-500 pb-2'>{commentState.content}</p>
                 <div className='flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2'>
                 <button
                     type='button'
@@ -163,7 +180,7 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
                     <>
                         <button
                             type='button'
-                            onClick={handleEdit}
+                            onClick={() => {setIsEditing(true)}}
                             className='text-gray-400 hover:text-blue-500'
                         >
                             Edit
@@ -209,22 +226,29 @@ export default function Comment({ comment, comments, onEdit, onDelete }) {
                     </div>
 
                 </div>}
-                {nestedComments.map((curr) => 
-                    curr.commentId === comment._id && 
-                    <Comment
-                        key={curr._id}
-                        comment={curr}
-                        comments={comments.filter((curr) => curr.commentId !== comment._id)}
-                        onEdit={handleEdit}
-                        onDelete={(commentId) => {
-                            setOpenModal(true);
-                            setCommentToDelete(commentId);
-                        }}
-                    />
-                )}
             </>
             )}
+            {nestedComments.map((curr) => 
+                curr.parentId === comment._id && 
+                <Comment
+                    key={curr._id}
+                    comment={curr}
+                    comments={comments.filter((curr) => curr.parentId !== comment._id)}
+                    onDelete={(id) => {
+                        setOpenModal(true);
+                        setCommentToDelete(id);
+                    }}
+                />
+            )}
         </div>
+        <ModalBox openModal={openLoginModal} setOpenModal={setOpenLoginModal}>
+            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+                Please login first
+            </h3>
+        </ModalBox>
+        <ModalBox openModal={openModal} setOpenModal={setOpenModal}>
+            <DeleteCommentContent setOpenModal={setOpenModal} handleDelete={handleDelete} />
+        </ModalBox>
         </div>
     );
 }

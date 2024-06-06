@@ -1,7 +1,7 @@
 import { Alert, Button, Textarea } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Comment from './Comment';
 import axios from 'axios';
 import ModalBox from './Modal';
@@ -15,7 +15,6 @@ export default function CommentSection({ postId }) {
     const [openModal, setOpenModal] = useState(false);
     const [openLoginModal, setOpenLoginModal] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,9 +27,8 @@ export default function CommentSection({ postId }) {
                 content: comment,
                 postId,
                 userId: currUser._id,
-                commentId: null
+                parentId: null
             });
-            console.log(res.data);
             if (res.status === 201) {
                 setComment('');
                 setCommentError(null);
@@ -72,11 +70,11 @@ export default function CommentSection({ postId }) {
             const res = await axios.delete(`/api/comment/delete/${commentToDelete}`)
             if (res.status === 200) {
                 setComments(comments.filter((comment) => comment._id !== commentToDelete));
+                console.log(comments.filter((comment) => comment._id !== commentToDelete));
             }
         } catch (error) {
             console.log(error.message);
         }
-
     };
   
     return (
@@ -138,15 +136,15 @@ export default function CommentSection({ postId }) {
             </form>
         )}
         {comments.map((comment) => (
-            comment.commentId === null && 
+            comment.parentId === null && 
                 <Comment
                     key={comment._id}
                     comment={comment}
-                    comments={comments.filter((c) => c.commentId !== null)}
+                    comments={comments.filter((c) => c.parentId !== null)}
                     onEdit={handleEdit}
-                    onDelete={(commentId) => {
+                    onDelete={(parentId) => {
                         setOpenModal(true);
-                        setCommentToDelete(commentId);
+                        setCommentToDelete(parentId);
                     }}
                 />
         ))}
