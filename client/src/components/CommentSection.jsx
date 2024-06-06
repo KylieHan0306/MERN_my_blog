@@ -128,12 +128,12 @@ export default function CommentSection({ postId }) {
                     Submit
                 </Button>
             </div>
-            {commentError && (
-                <Alert color='failure' className='mt-5'>
-                {commentError}
-                </Alert>
-            )}
             </form>
+        )}
+        {commentError && (
+            <Alert color='failure' className='mt-5'>
+            {commentError}
+            </Alert>
         )}
         {comments.map((comment) => (
             comment.parentId === null && 
@@ -146,6 +146,7 @@ export default function CommentSection({ postId }) {
                         setOpenModal(true);
                         setCommentToDelete(parentId);
                     }}
+                    setCommentError={setCommentError}
                 />
         ))}
         <ModalBox openModal={openLoginModal} setOpenModal={setOpenLoginModal}>

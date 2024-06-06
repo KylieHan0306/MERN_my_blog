@@ -1,31 +1,44 @@
 import { Button, Spinner } from 'flowbite-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import CommentSection from '../components/CommentSection';
+import PostCard from '../components/PostCard';
 import axios from 'axios';
+import CodeBox from '../components/CodeBox';
 
 export default function PostPage() {
     const { slug } = useParams();
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
     const [post, setPost] = useState(null);
+    const [recentPosts, setRecentPosts] = useState(null);
+    const navigate = useNavigate(null);
 
     const fetchPost = async () => {
         try {
             setLoading(true);
             const res = await axios.get(`/api/post?slug=${slug}`);
             if (res.status !== 200) {
-                setError(true);
                 setLoading(false);
                 return;
             } else {
                 setPost(res.data.posts[0]);
                 setLoading(false);
-                setError(false);
             }
         } catch (error) {
-            setError(true);
             setLoading(false);
+            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        }
+    };
+
+    const fetchRecentPost = async () => {
+        try {
+            const res = await axios.get(`/api/post?limit=3`);
+            if (res.status === 200) {
+              setRecentPosts(res.data.posts);
+            }
+        } catch (error) {
+            setLoading(false);
+            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
         }
     };
 
@@ -33,13 +46,18 @@ export default function PostPage() {
         fetchPost();
     }, [slug]);
 
+    
+    useEffect(() => {
+        fetchRecentPost();
+    }, []);
+
     return (
     <>
         {loading ? 
         (<div className='flex justify-center items-center min-h-screen'>
             <Spinner size='xl' />
         </div>) : 
-        (<main className='p-3 flex flex-col max-w-6xl mx-auto min-h-screen'>
+        (<main className='p-3 flex flex-col max-w-[85vw] mx-auto min-h-screen'>
             <h1 className='text-3xl mt-10 p-3 text-center font-serif mx-auto lg:text-4xl'>
                 {post && post.title}
             </h1>
@@ -67,7 +85,21 @@ export default function PostPage() {
                 dangerouslySetInnerHTML={{ __html: post && post.content }}
             >
             </div>
+                {post.code && 
+                    <div
+                        className='p-3 mx-auto w-full post-content'
+                    >
+                        <CodeBox code={post.code} language={post.category}/>            
+                    </div>
+                }
             <CommentSection postId={post._id} />
+            <div className='flex flex-col justify-center items-center mb-5'>
+                <h1 className='text-xl mt-5'>Recent articles</h1>
+                <div className='flex flex-wrap gap-5 mt-5 justify-center'>
+                {recentPosts &&
+                    recentPosts.map((post) => <PostCard key={post._id} post={post} />)}
+                </div>
+            </div>
         </main>)}
     </>);
 }

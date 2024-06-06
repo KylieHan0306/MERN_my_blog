@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { TextInput } from 'flowbite-react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';

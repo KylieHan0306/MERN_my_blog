@@ -8,7 +8,7 @@ import ModalBox from './Modal';
 import DeleteCommentContent from './DeleteCommentContent';
 
 
-export default function Comment({ comment, comments, onDelete }) {
+export default function Comment({ comment, comments, onDelete, setCommentError }) {
     const [user, setUser] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
@@ -25,10 +25,13 @@ export default function Comment({ comment, comments, onDelete }) {
         try {
             const res = await axios.get(`/api/user/getuser/${comment.userId}`);
             if (res.status === 200) {
+                console.log(res.data);
                 setUser(res.data);
             }
         } catch (error) {
-            console.error(error.message);
+            //if user deleted their account, print user not exist and default avatar
+            if (error.response.status === 404) setUser({ username: 'user not exist', photoUrl: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'});
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
 
@@ -46,6 +49,7 @@ export default function Comment({ comment, comments, onDelete }) {
             }
         } catch (error) {
             console.error(error);
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     }
     
@@ -71,6 +75,7 @@ export default function Comment({ comment, comments, onDelete }) {
             }
         } catch (error) {
             console.error(error);
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     }
 
@@ -83,6 +88,7 @@ export default function Comment({ comment, comments, onDelete }) {
             }
         } catch (error) {
             console.error(error.message);
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
 
@@ -238,6 +244,7 @@ export default function Comment({ comment, comments, onDelete }) {
                         setOpenModal(true);
                         setCommentToDelete(id);
                     }}
+                    setCommentError={setCommentError}
                 />
             )}
         </div>
