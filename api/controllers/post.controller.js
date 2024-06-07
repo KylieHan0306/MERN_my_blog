@@ -22,7 +22,7 @@ const createPostController = async (req, res, next) => {
 const getPostsController = async (req, res, next) => {
     try {
         const startIndex = parseInt(req.query.startIndex) || 0;
-        const limit = parseInt(req.query.limit) || 9;
+        const limit = parseInt(req.query.limit) || 6;
         const sortOrder = req.query.order === 'asc'? 1: -1;
         const posts = await Post.find({
             ...(req.query.userId && {userId: req.query.userId}),
@@ -33,7 +33,8 @@ const getPostsController = async (req, res, next) => {
                 $or: [
                     {title: {$regex: req.query.searchTerm, $options:'i' }},
                     {content: {$regex: req.query.searchTerm, $options: 'i'}},
-                    {code: {$regex: req.query.searchTerm, $options: 'i'}}
+                    {code: {$regex: req.query.searchTerm, $options: 'i'}},
+                    {owner: {$regex: req.query.searchTerm, $options: 'i'}},
                 ]
             })
         })

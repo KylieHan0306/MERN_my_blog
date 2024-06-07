@@ -13,6 +13,7 @@ import UpdatePost from './pages/UpdatePost'
 import CreatePost from './pages/CreatePost'
 import Error from './pages/Error'
 import ScrollTop from './components/ScrollTop'
+import Search from './pages/Search'
 
 export default function App() {
   return (
@@ -31,10 +32,9 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/reset-password" element={<PasswordReset />} /> 
         </Route>
-        {/*<Route element={<AdminRoute />}>*/}
-          <Route path="/create-post" element={<CreatePost />} />
-          <Route path="/update-post/:postId" element={<UpdatePost />} />
-        {/*</Route>*/}
+        <Route path="/create-post" element={<CreatePost />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/update-post/:postId" element={<UpdatePost />} />
         <Route path="/post/:slug" element={<Post />} />
       </Routes>
     </BrowserRouter>

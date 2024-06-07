@@ -18,7 +18,7 @@ export default function DashboardPosts({ postType }) {
 
   const fetchPosts = async () => {
     try {
-      const endPoint = postType === 'all'? `/api/post`: `/api/post?userId=${currUser?._id}`;
+      const endPoint = postType === 'all'? `/api/post?limit=9`: `/api/post?userId=${currUser?._id}?limit=9`;
       const res = await axios.get(endPoint);
       if (res.status === 200) setPosts(res.data.posts);
       // no more posts
@@ -48,7 +48,7 @@ export default function DashboardPosts({ postType }) {
       const endPoint = postType === 'all'? `/api/post?startIndex=${startIndex}`: `/api/post?userId=${currUser._id}&startIndex=${startIndex}`;
       const res = await axios.get(endPoint);
       if (res.status === 200) {
-        setPosts((prev) => [...prev, ...res.data.posts]);
+          setPosts((prev) => [...prev, ...res.data.posts]);
         if (res.data.posts.length < 9) {
           setShowMore(false);
         }
@@ -134,7 +134,7 @@ export default function DashboardPosts({ postType }) {
           {showMore && (
             <button
               onClick={handleShowMore}
-              className='w-full text-blue-500 self-center text-sm py-7'
+              className='w-full text-purple-500 self-center text-sm py-7'
             >
               Show more
             </button>

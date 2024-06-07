@@ -5,7 +5,7 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import ModalBox from './Modal';
 import LoginRegisterForm from "./LoginRegisterForm";
 import PasswordResetRequestForm from './PasswordResetRequestForm';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../store/themeStore';
 import { logoutSuccess, logoutStart, logoutFail } from '../store/userStore';
@@ -20,6 +20,13 @@ export default function Header() {
     const { theme } = useSelector((state) => state.theme);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const searchTermInUrl = urlParams.get('searchTerm');
+        if (searchTermInUrl) setSearchTerm(searchTermInUrl);
+    }, [location.search])
 
     const handleLogout = async () => {
         try {
@@ -41,6 +48,16 @@ export default function Header() {
         dispatch(toggleTheme());
     }
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const urlParams = new URLSearchParams(location.search);
+        console.log(urlParams);
+        urlParams.set('searchTerm', searchTerm);
+        console.log(urlParams);
+        const query = urlParams.toString();
+        navigate(`/search?${query}`);        
+    }
+
     return (
         <Navbar className='border-b-2'>
             <Link
@@ -57,16 +74,18 @@ export default function Header() {
                 </span>
                 Blog
             </Link>
-            <form>
+            <form onSubmit={handleSubmit}>
                 <TextInput
                     type='text'
                     placeholder='Search...'
                     rightIcon={AiOutlineSearch}
-                    className='hidden lg:inline'
+                    className='hidden md:inline'
+                    onChange={(e) => {setSearchTerm(e.target.value)}}
+                    value={searchTerm}
                 />
             </form>
-            <Button className='w-12 h-10 lg:hidden' color='gray' pill>
-                <AiOutlineSearch />
+            <Button className='w-12 h-10 md:hidden' color='gray' pill>
+                <AiOutlineSearch onClick={() => {navigate('/search');}}/>
             </Button>
             <div className='flex gap-2 md:order-2'>
                 <Button
@@ -120,9 +139,6 @@ export default function Header() {
                 </Navbar.Link>
                 <Navbar.Link active={path === '/create-post'} as={'div'}>
                     <Link to='/create-post'>Create Posts</Link>
-                </Navbar.Link>
-                <Navbar.Link active={path === '/projects'} as={'div'}>
-                    <Link to='/projects'>Projects</Link>
                 </Navbar.Link>
             </Navbar.Collapse>
             <ModalBox openModal={openModal} setOpenModal={setOpenModal}>
