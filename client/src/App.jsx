@@ -14,6 +14,7 @@ import CreatePost from './pages/CreatePost'
 import Error from './pages/Error'
 import ScrollTop from './components/ScrollTop'
 import Search from './pages/Search'
+import Footer from './components/Footer'
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="/update-post/:postId" element={<UpdatePost />} />
         <Route path="/post/:slug" element={<Post />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   )
 }
