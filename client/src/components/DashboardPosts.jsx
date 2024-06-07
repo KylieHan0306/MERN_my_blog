@@ -120,7 +120,7 @@ export default function DashboardPosts({ postType }) {
                   {postType !== 'all' && 
                     <Table.Cell>
                       <Link
-                        className='text-teal-500 hover:underline'
+                        className='text-blue-500 hover:underline'
                         to={`/update-post/${post._id}`}
                       >
                         <span>Edit</span>
@@ -134,7 +134,7 @@ export default function DashboardPosts({ postType }) {
           {showMore && (
             <button
               onClick={handleShowMore}
-              className='w-full text-teal-500 self-center text-sm py-7'
+              className='w-full text-blue-500 self-center text-sm py-7'
             >
               Show more
             </button>

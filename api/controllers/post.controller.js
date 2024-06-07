@@ -50,7 +50,7 @@ const getPostsController = async (req, res, next) => {
           now.getDate()
         );
         const lastMonthPosts = await Post.countDocuments({
-          createdAt: { $gte: oneMonthAgo },
+            createdAt: { $gte: oneMonthAgo },
         });
 
         res.status(200).json({

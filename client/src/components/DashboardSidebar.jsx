@@ -1,5 +1,5 @@
 import { Sidebar } from 'flowbite-react';
-import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup } from 'react-icons/hi';
+import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiAnnotation, HiChartPie } from 'react-icons/hi';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,9 +42,20 @@ export default function DashboardSidebar() {
         }
     }
     return (
-        <Sidebar className='w-full md:w-56'>
+        <Sidebar className='w-full'>
         <Sidebar.Items>
             <Sidebar.ItemGroup className='flex flex-col gap-1'>
+            {currUser && currUser.isAdmin && (
+                <Link to='/dashboard?tab=overall'>
+                    <Sidebar.Item
+                        active={tab === 'overall' || !tab}
+                        icon={HiChartPie}
+                        as='div'
+                    >
+                        Overall
+                    </Sidebar.Item>
+                </Link>
+            )}
             <Link to='/dashboard?tab=profile'>
                 <Sidebar.Item
                     active={tab === 'profile'}
@@ -69,7 +80,7 @@ export default function DashboardSidebar() {
                 <>
                 <Link to='/dashboard?tab=all-posts'>
                     <Sidebar.Item
-                        active={tab === 'all posts'}
+                        active={tab === 'all-posts'}
                         icon={HiDocumentText}
                         as='div'
                     >
@@ -83,6 +94,15 @@ export default function DashboardSidebar() {
                         as='div'
                     >
                         Users
+                    </Sidebar.Item>
+                </Link>
+                <Link to='/dashboard?tab=comments'>
+                    <Sidebar.Item
+                        active={tab === 'comments'}
+                        icon={HiAnnotation}
+                        as='div'
+                    >
+                        Comments
                     </Sidebar.Item>
                 </Link>
                 </>

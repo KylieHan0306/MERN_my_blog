@@ -141,7 +141,7 @@ export default function UpdatePost() {
                 <option value='tsx'>Tsx</option>
             </Select>
             </div>
-            <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+            <div className='flex gap-4 items-center justify-between border-4 border-purple-500 border-dotted p-3'>
             <FileInput
                 type='file'
                 accept='image/*'

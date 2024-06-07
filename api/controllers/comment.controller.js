@@ -89,7 +89,7 @@ const deleteCommentController = async (req, res, next) => {
     try {
         const comment = await Comment.findById(req.params.id);
         if (!comment) return next(errorHandler(404, 'Comment not found'));
-        if (comment.userId !== req.user.id) return next(errorHandler(403, 'You are not allowed to delete this comment'));
+        if (comment.userId !== req.user.id && !req.user.isAdmin) return next(errorHandler(403, 'You are not allowed to delete this comment'));
 
         // Use aggregation to find all nested comments that are children of the comment to be deleted
         const commentsToDelete = await Comment.aggregate([
