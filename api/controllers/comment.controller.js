@@ -27,11 +27,33 @@ const createCommentController = async (req, res, next) => {
 const getCommentsController = async (req, res, next) => {
     try {
         if (!req.params.postId) return next(errorHandler(500, 'Internal server error'));
-        const comments = await Comment.find({ postId: req.params.postId}).sort({ createdAt: -1 });
+        const comments = await Comment.find({ postId: req.params.postId }).sort({ createdAt: -1 });
         res.status(200).json(comments);
     } catch (error) {
         console.log(error);
         next(error);
+    }
+}
+
+const getAllCommentsController = async (req, res, next) => {
+    if (!req.user.isAdmin) return next(errorHandler(403, 'You are not allowed to delete this comment'));
+    try {
+        const startIndex = req.query.startIndex || 0;
+        const limit = req.query.limit || 9;
+        const order = req.query.order === 'asc'? 1: -1;
+
+        const comments = await Comment.find().sort({ updateAt: order }).skip(startIndex).limit(limit);
+        const now = new Date();
+        const lastMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() -1,
+            now.getDate()
+        );
+        const commentsCount = await Comment.countDocuments();
+        const commentsLastCount = await Comment.find({ updateAt: { $gte: lastMonth }});
+        res.status(200).json({comments, commentsCount, commentsLastCount})
+    } catch (e) {
+        next(e);
     }
 }
 
@@ -111,5 +133,6 @@ module.exports = {
     getCommentsController,
     likeCommentController,
     editCommentController,
-    deleteCommentController
+    deleteCommentController,
+    getAllCommentsController
 }

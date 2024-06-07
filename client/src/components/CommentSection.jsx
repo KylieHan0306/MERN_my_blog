@@ -41,7 +41,7 @@ export default function CommentSection({ postId }) {
 
     const fetchComments = async () => {
         try {
-            const res = await axios.get(`/api/comment/${postId}`);
+            const res = await axios.get(`/api/comment/post/${postId}`);
             if (res.status === 200) {
                 setComments(res.data);
             }
