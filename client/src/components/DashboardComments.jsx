@@ -5,6 +5,7 @@ import axios from 'axios';
 import ModalBox from './Modal';
 import DeleteCommentContent from '../components/DeleteCommentContent';
 import { useNavigate } from 'react-router-dom';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function DashboardComments() {
   const { currUser } = useSelector((state) => state.user);
@@ -23,9 +24,9 @@ export default function DashboardComments() {
           setShowMore(false);
         }
       }
-    } catch (error) {
-      console.error(error);
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+    } catch (e) {
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   };
 
@@ -45,9 +46,9 @@ export default function DashboardComments() {
           setShowMore(false);
         }
       }
-    } catch (error) {
-      console.error(error);
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+    } catch (e) {
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   };
 
@@ -60,11 +61,12 @@ export default function DashboardComments() {
         await fetchComments();
         setOpenModal(false);
       } else {
-        navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        const error = errorGenerator();
+        navigate('/error', {state: {error}});
       }
-    } catch (error) {
-      console.error(error);
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+    } catch (e) {
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   };
 

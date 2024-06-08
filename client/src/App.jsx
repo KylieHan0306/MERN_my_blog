@@ -29,14 +29,16 @@ export default function App() {
         <Route path="/email-change" element={<EmailVerify />} /> 
         <Route path="/email-verify-success" element={<EmailVerifySuccess />} /> 
         <Route path="/error" element={<Error />} /> 
+        {/* Page not exist */}
+        <Route path="*" element={<Error />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/reset-password" element={<PasswordReset />} /> 
-        </Route>
-        <Route path="/create-post" element={<CreatePost />} />
         <Route path="/search" element={<Search />} />
         <Route path="/update-post/:postId" element={<UpdatePost />} />
         <Route path="/post/:slug" element={<Post />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/reset-password" element={<PasswordReset />} /> 
+          <Route path="/create-post" element={<CreatePost />} />
+        </Route>
       </Routes>
       <Footer />
     </BrowserRouter>

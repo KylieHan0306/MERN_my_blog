@@ -2,25 +2,29 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PostCard from '../components/PostCard';
 import axios from 'axios';
-import { Avatar } from 'flowbite-react';
+import errorGenerator from '../utils/errorGenerator';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
+  const navigate = useNavigate();
 
   const fetchPosts = async () => {
     try {
       const res = await axios.get(`/api/post?limit=3`);
-      if (res.status === 200) setPosts(res.data.posts);
-      // no more posts
-      if (res.data.posts.length < 9) setShowMore(false);
+      if (res.status === 200) {
+        setPosts(res.data.posts);
+      }
     } catch (e) {
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   }
 
   useEffect(() => {
     fetchPosts();
   }, []);
+
   return (
     <div>
       <div className='flex gap-6 pt-28 pb-10 px-3 max-w-6xl mx-auto border-b-2 '>
@@ -41,7 +45,7 @@ export default function Home() {
         </div>
         <img 
           className='max-h-xs max-w-xs ml-8 rounded-full border-4 border-gray-400 hidden md:block'
-          alt='Kylie photo'
+          alt='Kylie/"s photo'
           src={'https://firebasestorage.googleapis.com/v0/b/mern-kylie-blog-189df.appspot.com/o/io1521087%40gmail.comFri%20Jun%2007%202024%2022%3A22%3A29%20GMT%2B1000%20(Australian%20Eastern%20Standard%20Time)me.png?alt=media&token=1d67aeba-9c74-4b36-a15b-f61e95397920'} 
         />
       </div>
@@ -49,7 +53,7 @@ export default function Home() {
       <div className='max-w-7xl mx-auto p-3 flex flex-col gap-8 py-16 justify-center items-center'>
         {posts && posts.length > 0 && (
           <div className='flex flex-col gap-6'>
-            <h2 className='text-4xl font-semibold text-center'>Recent Posts</h2>
+            <h2 className='lg:text-4xl text-xl font-semibold text-center'>Recent Posts</h2>
             <div className='flex flex-wrap gap-4 justify-center items-center'>
               {posts.map((post) => (
                 <PostCard key={post._id} post={post} />

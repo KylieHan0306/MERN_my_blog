@@ -5,6 +5,8 @@ import ModalBox from './Modal';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import DeleteUserContent from './DeleteUserContent';
 import axios from 'axios';
+import errorGenerator from '../utils/errorGenerator';
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardUsers() {
     const { currUser } = useSelector((state) => state.user);
@@ -12,6 +14,7 @@ export default function DashboardUsers() {
     const [showMore, setShowMore] = useState(true);
     const [openModal, setOpenModal] = useState(false);
     const [userIdToDelete, setUserIdToDelete] = useState('');
+    const navigate = useNavigate();
 
     const fetchUsers = async () => {
         try {
@@ -22,9 +25,10 @@ export default function DashboardUsers() {
             setShowMore(false);
             }
         }
-        } catch (error) {
-        console.error(error);
-        navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+    
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     };
 
@@ -44,9 +48,10 @@ export default function DashboardUsers() {
             setShowMore(false);
             }
         }
-        } catch (error) {
-        console.error(error);
-        navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+    
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     };
 
@@ -57,9 +62,10 @@ export default function DashboardUsers() {
                 setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
                 setOpenModal(false);
             }
-        } catch (error) {
-            console.error(error);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+    
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     };
 

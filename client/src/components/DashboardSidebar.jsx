@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutStart, logoutSuccess, logoutFail } from '../store/userStore';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function DashboardSidebar() {
     const location = useLocation();
@@ -15,8 +16,11 @@ export default function DashboardSidebar() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!currUser) navigate('/error', {state: {errorMessage: 'Please login first'} });
-    }, [])
+        if (!currUser) {
+            const error = errorGenerator('login_required');
+            navigate('/error', {state: {error}});
+        }
+    }, [currUser])
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
@@ -37,8 +41,8 @@ export default function DashboardSidebar() {
             }
         } catch (e) {
             dispatch(logoutFail());
-            const errorMessage = e.response.data.errMsg;
-            navigate('/error', { state: { errorMessage } });
+            const error = errorGenerator();
+            navigate('/error', {state: {error}});
         }
     }
     return (

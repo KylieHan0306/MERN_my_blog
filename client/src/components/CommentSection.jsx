@@ -35,7 +35,7 @@ export default function CommentSection({ postId }) {
                 setComments([res.data, ...comments]);
             }
         } catch (error) {
-            setCommentError(error.message);
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
 
@@ -45,8 +45,8 @@ export default function CommentSection({ postId }) {
             if (res.status === 200) {
                 setComments(res.data);
             }
-        } catch (error) {
-            console.log(error.message);
+        } catch (e) {
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
 
@@ -72,7 +72,7 @@ export default function CommentSection({ postId }) {
                 setComments(comments.filter((comment) => comment._id !== commentToDelete));
             }
         } catch (error) {
-            console.log(error.message);
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
   

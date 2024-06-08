@@ -10,6 +10,7 @@ import { Button, Table } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function DashboardOverall() {
 
@@ -33,9 +34,10 @@ export default function DashboardOverall() {
                 setTotalComments(res.data.commentsCount);
                 setLastMonthComments(res.data.commentsLastCount);
             }
-        } catch (error) {
-            console.error(error);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+            
+            const error = errorGenerator();
+            navigate('/error', {state: {error}});
         }
     };
     
@@ -47,9 +49,10 @@ export default function DashboardOverall() {
                 setTotalUsers(res.data.usersCount);
                 setLastMonthUsers(res.data.usersLastMonth);
             }
-        } catch (error) {
-            console.error(error);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+            
+            const error = errorGenerator();
+            navigate('/error', {state: {error}});
         }
     };
 
@@ -61,9 +64,10 @@ export default function DashboardOverall() {
                 setTotalPosts(res.data.totalPosts);
                 setLastMonthPosts(res.data.lastMonthPosts);
             }
-        } catch (error) {
-            console.error(error);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+            
+            const error = errorGenerator();
+            navigate('/error', {state: {error}});
         }
     }
 

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { updateSuccess } from '../store/userStore';
 import { useDispatch } from 'react-redux';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function EmailVerified () {
     const [error, setError] = useState('');
@@ -22,10 +23,10 @@ export default function EmailVerified () {
                 setError(errorMessage); 
                 return;
             } else {
-                navigate('/error', { state: { errorMessage: "Your update email session has expired, try again" } });
+                const error = errorGenerator();
+                navigate('/error', {state: { error }});
             }
         }
-        //navigate('/error', { state: { errorMessage } });
     }
 
     const verify = async () => {

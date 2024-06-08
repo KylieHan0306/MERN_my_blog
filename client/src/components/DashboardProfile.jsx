@@ -10,7 +10,7 @@ import { app } from '../firebase';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import errorGenerator from '../utils/errorGenerator';
 import { logoutStart, logoutSuccess, logoutFail, updateFail, updateStart, updateSuccess } from '../store/userStore';
 
 export default function DashboardProfile() {
@@ -65,8 +65,8 @@ export default function DashboardProfile() {
             }
         } catch (e) {
             dispatch(logoutFail());
-            const errorMessage = e.response.data.errMsg;
-            navigate('/error', { state: { errorMessage } });
+            const error = errorGenerator();
+            navigate('/error', {state: {error}});
         }
     }
 

@@ -113,7 +113,6 @@ const getUserController = async (req, res, next) => {
         if(!user) return next(errorHandler(404, 'User not found'));
         res.status(200).json(user);
     } catch(e) {
-        console.log(e);
         next(e);
     }
 }

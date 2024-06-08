@@ -5,6 +5,7 @@ import CommentSection from '../components/CommentSection';
 import PostCard from '../components/PostCard';
 import axios from 'axios';
 import CodeBox from '../components/CodeBox';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function PostPage() {
     const { slug } = useParams();
@@ -24,9 +25,10 @@ export default function PostPage() {
                 setPost(res.data.posts[0]);
                 setLoading(false);
             }
-        } catch (error) {
+        } catch (e) {
             setLoading(false);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     };
 
@@ -36,9 +38,10 @@ export default function PostPage() {
             if (res.status === 200) {
               setRecentPosts(res.data.posts);
             }
-        } catch (error) {
+        } catch (e) {
             setLoading(false);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     };
 

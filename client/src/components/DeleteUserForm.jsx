@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { deleteStart, deleteSuccess, deleteFail } from '../store/userStore'
 import { useSelector } from 'react-redux';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function DeleteUserForm({ setOpenModal }) {
     const navigate = useNavigate();
@@ -23,12 +24,13 @@ export default function DeleteUserForm({ setOpenModal }) {
                 navigate('/');
             } else {
                 dispatch(deleteFail());
-                const errorMessage = e.response.data.errMsg;
-                navigate('/error', { state: { errorMessage } });
+                const error = errorGenerator();
+                navigate('/error', {state: { error }});
             }
         } catch (e) {
             dispatch(deleteFail());
-            navigate('/error', { state: { e } });
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     }
 

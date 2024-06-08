@@ -1,11 +1,11 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Button, Select, TextInput } from 'flowbite-react';
 import PostCard from '../components/PostCard';
-import { Sidebar } from 'flowbite-react';
+import errorGenerator from '../utils/errorGenerator';
 
-export default function search() {
+export default function Search() {
     const [searchForm, setSearchForm] = useState({
         searchTerm: '',
         order: 'desc',
@@ -44,7 +44,6 @@ export default function search() {
             setLoading(true);
             const res = await axios.get(`/api/post?${query}`);
             if (res.status === 200) {
-                console.log(res.data.posts);
                 setPosts(res.data.posts);
                 setLoading(false);
             }
@@ -52,7 +51,8 @@ export default function search() {
             if (res.data.posts.length < 6) setShowMore(false);
         } catch (e) {
             setLoading(false);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     }
 
@@ -95,11 +95,12 @@ export default function search() {
                     setShowMore(false);
                 }
             } else {
-                navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+                const error = errorGenerator();
+                navigate('/error', {state: { error }});
             }
-        } catch (error) {
-            console.log(error);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+        } catch (e) {
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
 
     };

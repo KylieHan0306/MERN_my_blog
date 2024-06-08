@@ -43,3 +43,7 @@ body {
 #codeBox {
   background-color: #384151;
 }
+
+#errorCode {
+  font-size: 200px;
+}

@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import ModalBox from './Modal';
 import DeletePostContent from './DeletePostContent';
 import { useNavigate } from 'react-router-dom';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function DashboardPosts({ postType }) {
   const [posts, setPosts] = useState([]);
@@ -24,7 +25,8 @@ export default function DashboardPosts({ postType }) {
       // no more posts
       if (res.data.posts.length < 9) setShowMore(false);
     } catch (e) {
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   }
 
@@ -37,8 +39,9 @@ export default function DashboardPosts({ postType }) {
         setPosts((prev)=> prev.filter((post)=> post._id !== deleteId));
         setOpenModal(false);
       }
-    } catch (error) {
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+    } catch (e) {
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   }
 
@@ -53,8 +56,9 @@ export default function DashboardPosts({ postType }) {
           setShowMore(false);
         }
       }
-    } catch (error) {
-      navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+    } catch (e) {
+      const error = errorGenerator();
+      navigate('/error', {state: {error}});
     }
   };
   

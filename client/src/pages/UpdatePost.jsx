@@ -15,6 +15,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import CodeBox from '../components/CodeBox';
 import axios from 'axios';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function UpdatePost() {
     const [photo, setPhoto] = useState(null);
@@ -34,14 +35,17 @@ export default function UpdatePost() {
 
     const fetchPost = async () => {
         try {
-            if (!postId) navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+            if (!postId) {
+                const error = errorGenerator();
+                navigate('/error', {state: { error }});
+            }
             const res = await axios.get(`/api/post?postId=${postId}`);
             if (res.status === 200) {
                 setFormData(res.data.posts[0]);
             }
         } catch (e) {
-            console.error(e);
-            navigate('/error', {state: {errorMessage: 'Unable to reach the server. Please ensure you are connected to the internet, or try again later.'}});
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     }
 

@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../store/themeStore';
 import { logoutSuccess, logoutStart, logoutFail } from '../store/userStore';
 import axios from 'axios';
+import errorGenerator from '../utils/errorGenerator';
 
 export default function Header() {
     const location = useLocation();
@@ -38,8 +39,8 @@ export default function Header() {
             }
         } catch (e) {
             dispatch(logoutFail());
-            const errorMessage = e.response.data.errMsg;
-            navigate('/error', { state: { errorMessage } });
+            const error = errorGenerator();
+            navigate('/error', {state: { error }});
         }
     }
 
@@ -51,9 +52,7 @@ export default function Header() {
     const handleSubmit = (e) => {
         e.preventDefault();
         const urlParams = new URLSearchParams(location.search);
-        console.log(urlParams);
         urlParams.set('searchTerm', searchTerm);
-        console.log(urlParams);
         const query = urlParams.toString();
         navigate(`/search?${query}`);        
     }

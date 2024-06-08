@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import errorGenerator from "../utils/errorGenerator";
 
 export default function PasswordResetPage() {
   const location = useLocation();
@@ -34,7 +35,8 @@ export default function PasswordResetPage() {
     } catch (e) {
         const errorMessage = e.response.data.errMsg;
         if (errorMessage === "Your session has expired. Please redo the changing password process again") {
-          navigate('/error', { state: { errorMessage } });
+          const error = errorGenerator('password_reset_expired');
+          navigate('/error', {state: { error }});
         }
         setPasswordError(errorMessage);
     } 

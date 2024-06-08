@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import { app } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import errorGenerator from "../utils/errorGenerator";
 
 export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
     const [register, setRegister] = useState(false);
@@ -133,7 +134,8 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
             // Internal Server Error
             if (e.response.status === 500) {
                 dispatch(loginFail());
-                navigate('/error', { state: { errorMessage: 'Internal Server Error' } });
+                const error = errorGenerator();
+                navigate('/error', {state: { error }});
                 setOpenModal(false);
                 return;
             }
@@ -174,8 +176,8 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
           dispatch(loginSuccess(resB.data))
         }
       } catch (e) {
-        const errorMessage = e.response.data.errMsg;
-        navigate('/error', { state: { errorMessage } });
+        const error = errorGenerator();
+        navigate('/error', {state: { error }});
       }
     }
     

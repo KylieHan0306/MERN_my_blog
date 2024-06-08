@@ -25,7 +25,6 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
         try {
             const res = await axios.get(`/api/user/getuser/${comment.userId}`);
             if (res.status === 200) {
-                console.log(res.data);
                 setUser(res.data);
             }
         } catch (error) {
@@ -48,7 +47,6 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 setCommentState(res.data);
             }
         } catch (error) {
-            console.error(error);
             setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     }
@@ -74,7 +72,6 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 setReplying(false);
             }
         } catch (error) {
-            console.error(error);
             setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     }
@@ -87,7 +84,6 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 setCommentState(res.data);
             }
         } catch (error) {
-            console.error(error.message);
             setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
@@ -103,7 +99,7 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 setCommentToDelete(null);
             }
         } catch (error) {
-            console.log(error.message);
+            setCommentError('Unable to reach the server. Please ensure you are connected to the internet, or try again later.');
         }
     };
   
