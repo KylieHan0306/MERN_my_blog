@@ -6,6 +6,8 @@ export default function PasswordResetRequestForm() {
     const [email, setEmail] = useState('');
     const [emailError, setEmailError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
 
     const handleReset = async (e) => {
         e.preventDefault();
@@ -14,11 +16,17 @@ export default function PasswordResetRequestForm() {
             setEmailError('Please enter a valid email');
         }
         try {
+            setLoading(true);
             const res = await axios.post("/api/auth/request-reset-password", {email});
             if(res.status < 300 && res.status >= 200) {
                 setSuccess(res.data.message);
+                setLoading(false);
+                setEmailSent(true);
+            } else {
+                setLoading(false);
             }
         } catch (e) {
+            setLoading(false);
             const errorMessage = e.response.data.errMsg;
             setEmailError(errorMessage)
         }
@@ -30,7 +38,7 @@ export default function PasswordResetRequestForm() {
     }
     return (
         <div className="max-w-md mx-auto">
-        <h2 className="text-2xl font-semibold">Reset Your Password</h2>
+        <h2 className="text-2xl font-semibold mb-4">Reset Your Password</h2>
         <form className="mt-4">
             <div className="mb-4">
             <Label htmlFor="email" value="Email" />
@@ -50,8 +58,15 @@ export default function PasswordResetRequestForm() {
                 type="submit"
                 className="bg-custom-gradient"
                 onClick={handleReset}
+                disabled={loading || emailSent}
             >
-                Send Reset Link
+            {loading? 
+                <>
+                    <Spinner size={'sm'}/>
+                    <span className="pl-3">Loading...</span>
+                </>: 
+                ('Send Reset Link')
+            }    
             </Button>
         </form>
         {success.length !== 0 && <h3 className="text-green-500">{success}</h3>}

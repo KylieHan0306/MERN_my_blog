@@ -35,7 +35,6 @@ export default function DashboardOverall() {
                 setLastMonthComments(res.data.commentsLastCount);
             }
         } catch (e) {
-            
             const error = errorGenerator();
             navigate('/error', {state: {error}});
         }
@@ -50,7 +49,6 @@ export default function DashboardOverall() {
                 setLastMonthUsers(res.data.usersLastMonth);
             }
         } catch (e) {
-            
             const error = errorGenerator();
             navigate('/error', {state: {error}});
         }
@@ -65,7 +63,6 @@ export default function DashboardOverall() {
                 setLastMonthPosts(res.data.lastMonthPosts);
             }
         } catch (e) {
-            
             const error = errorGenerator();
             navigate('/error', {state: {error}});
         }

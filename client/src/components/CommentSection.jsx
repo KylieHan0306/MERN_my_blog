@@ -28,7 +28,6 @@ export default function CommentSection({ postId }) {
                 userId: currUser? currUser._id: null,
                 parentId: null
             });
-            console.log(res);
             if (res.status === 201) {
                 setComment('');
                 setCommentError(null);

@@ -38,7 +38,7 @@ const getPostsController = async (req, res, next) => {
                 ]
             })
         })
-        .sort({ updateAt:sortOrder })
+        .sort({ updatedAt:sortOrder })
         .skip(startIndex)
         .limit(limit);
 

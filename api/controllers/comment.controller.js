@@ -21,7 +21,6 @@ const createCommentController = async (req, res, next) => {
         await comment.save();
         res.status(201).json(comment);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 }

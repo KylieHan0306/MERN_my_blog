@@ -39,8 +39,8 @@ export default function App() {
         <Route path="/post/:slug" element={<Post />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/reset-password" element={<PasswordReset />} /> 
         <Route element={<PrivateRoute />}>
-          <Route path="/reset-password" element={<PasswordReset />} /> 
           <Route path="/create-post" element={<CreatePost />} />
         </Route>
       </Routes>

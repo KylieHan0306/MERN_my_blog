@@ -17,8 +17,7 @@ export default function DashboardSidebar() {
 
     useEffect(() => {
         if (!currUser) {
-            const error = errorGenerator('login_required');
-            navigate('/error', {state: {error}});
+            navigate('/');
         }
     }, [currUser])
 

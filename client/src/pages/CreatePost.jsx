@@ -25,7 +25,6 @@ export default function CreatePost() {
   const [uploadProgress, setUploadProgress] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const [codeError, setCodeError] = useState(null);
-  console.log(formData.photoUrl);
 
   const navigate = useNavigate();
 

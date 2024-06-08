@@ -14,6 +14,13 @@ export default function EmailVerified () {
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get('token');
     const dispatch = useDispatch();
+    
+    //block if no token
+    useEffect(() => {
+        if (!queryParams.has('token')) {
+            navigate('/error');
+        }
+    }, [location.search])
 
     const errorHandle = (e) => {
         const errorMessage = e.response.data.errMsg;

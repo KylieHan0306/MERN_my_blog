@@ -7,9 +7,9 @@ export default function EmailVerifySuccess() {
     const { message } = location.state || {};
     return (
         <>
-            <div className="flex flex-col items-center justify-center bg-gray-100 min-h-screen">
+            <div className="flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 min-h-screen">
                 <img src={emailVerifiedImage} alt="Email Verified" className="mt-4 mb-4"/>
-                <h1 className="text-xl text-gray-600 mb-6">{message}</h1>
+                <h1 className="text-xl text-gray-600 dark:text-gray-400 mb-6">{message}</h1>
             </div>
         </>
     );

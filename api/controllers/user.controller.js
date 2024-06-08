@@ -1,15 +1,15 @@
 const jwt = require('jsonwebtoken')
 const bcryptjs = require('bcryptjs')
-const mongoose = require('mongoose')
 const User = require('../models/user.model.js')
 const sendEmail = require('../utils/sendEmail.js')
 const errorHandler = require('../utils/errorHandler.js')
 const { validPassword, validUsername, validEmail } = require('../utils/validation.js')
+const { ObjectId } = require('mongodb');
 
 const deleteUserController = async (req, res, next) => {
-    if (!req.user.isAdmin && req.user.id !== req.params.id) return next(errorHandler(403, 'You are not allowed to delete this user'))
+    if (!req.user.isAdmin && req.user.id !== req.params.id) return next(errorHandler(403, 'You are not allowed to delete this user'));
     try {
-        await User.findOneAndDelete(req.params.id)
+        await User.findOneAndDelete({ _id: new ObjectId(req.params.id) })
         res.status(200).json('The user has been deleted')
     } catch (e) {
         next(e)
@@ -36,8 +36,6 @@ const updateUserController = async (req, res, next) => {
             {
               $set: {
                 username: req.body.username,
-                email: req.body.email,
-                profilePicture: req.body.profilePicture,
                 password: req.body.password && bcryptjs.hashSync(req.body.password, 10),
                 photoUrl: req.body.photoUrl
               },

@@ -27,7 +27,15 @@ export default function Header() {
         const urlParams = new URLSearchParams(location.search);
         const searchTermInUrl = urlParams.get('searchTerm');
         if (searchTermInUrl) setSearchTerm(searchTermInUrl);
-    }, [location.search])
+    }, [location.search]);
+
+    useEffect(() => {
+        setModalContent('login');
+    }, [])
+
+    useEffect(() => {
+        if (location.pathname !== '/search') setSearchTerm('');
+    }, [location.pathname])
 
     const handleLogout = async () => {
         try {
@@ -135,7 +143,7 @@ export default function Header() {
                     <Link to='/create-post'>Create Posts</Link>
                 </Navbar.Link>
             </Navbar.Collapse>
-            <ModalBox openModal={openModal} setOpenModal={setOpenModal}>
+            <ModalBox openModal={openModal} setOpenModal={setOpenModal} setModalContent={setModalContent}>
                 {modalContent === 'login'? <LoginRegisterForm setOpenModal={setOpenModal} setModalContent={setModalContent}/> : <PasswordResetRequestForm setModalContent={setModalContent}/>}
             </ModalBox>
         </Navbar>

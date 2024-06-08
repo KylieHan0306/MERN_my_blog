@@ -1,6 +1,6 @@
 import { Alert, Button, TextInput, Checkbox, Label } from 'flowbite-react';
 import { useSelector } from 'react-redux';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ModalBox from './Modal';
 import DeleteUserForm from './DeleteUserForm';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
@@ -28,6 +28,27 @@ export default function DashboardProfile() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    // In case the user change their email and finished the verification process
+    const fetchUser = async () => {
+        try {
+            dispatch(updateStart());
+            const res = await axios.get(`/api/user/getuser/${currUser._id}`);
+            if (res.status === 200) {
+                dispatch(updateSuccess(res.data));
+            } else {
+                dispatch(updateFail());
+            }
+        } catch (e) {
+            const error = errorGenerator();
+            dispatch(updateFail());
+            navigate('/error', {state: {error}});
+        }
+    };
+
+    useEffect(() => {
+        fetchUser();
+    }, [])
+
     const handleChange = (e) => {
         setUpdateUserSuccess(null);
         setUploadError(null);
@@ -42,10 +63,10 @@ export default function DashboardProfile() {
             dispatch(updateStart());
             if (photoUrl) formData.photoUrl = photoUrl;
             const res = await axios.put(`/api/user/${currUser?._id}`, formData);
-            if(res.data.message) {
+            if(res.data.message === 'Please verify your new email') {
                 setEmailSent(res.data.message);
             }
-            setUpdateUserSuccess('Your profile updated successfully!');
+            if(formData.username || formData.photoUrl || formData.password) setUpdateUserSuccess('Your profile updated successfully!');
             dispatch(updateSuccess(res.data.user));
         } catch(e) {
             dispatch(updateFail());

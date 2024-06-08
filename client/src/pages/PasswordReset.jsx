@@ -1,5 +1,5 @@
 import { Button, Label, TextInput, Checkbox } from "flowbite-react";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,14 @@ export default function PasswordResetPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const token = queryParams.get('token');
   const navigate = useNavigate();
+
+  //block if no token
+  useEffect(() => {
+    if (!queryParams.has('token')) {
+      navigate('/error');
+    }
+  }, [location.search])
+
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
@@ -53,13 +61,14 @@ export default function PasswordResetPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto ">
+    <div className="max-w-lg mx-auto min-h-screen justify-center items-center">
       <form className="mt-16 flex-col items-center justify-center">
-      <h1 className="text-4xl">Reset your Password</h1>
-        <div className="mt-4">
-          <Label htmlFor="password" value="New Password" />
+      <h1 className="text-4xl font-semibold">Reset your Password</h1>
+        <div className="mt-4 mb-2">
+          <Label htmlFor="password" value="New Password"/>
           <TextInput
             id="password"
+            className="mb-2 mt-2"
             type={showPassword? "text":"password"} 
             placeholder="Enter new password"
             color={passwordError.length===0? "gray":"failure"}
@@ -75,6 +84,7 @@ export default function PasswordResetPage() {
           <Label htmlFor="confirmPassword" value="Confirm New Password" />
           <TextInput
             id="confirmPassword"
+            className="mb-2 mt-2"
             type={showConfirmPassword? "text":"password"} 
             placeholder="Confirm new password"
             onChange={(e)=> {setConfirmPassword(e.target.value); setPasswordError('');}}
@@ -90,10 +100,11 @@ export default function PasswordResetPage() {
           outline
           className="bg-custom-gradient"
           onClick={handlePasswordReset}
+          disabled={message.length !== 0}
         >
           Reset Password
         </Button>
-        {message.length !== 0 && <h3 className="text-green-500">{message}</h3>}
+        {message.length !== 0 && <h3 className="text-green-500 mt-2 text-xl">{message}</h3>}
       </form>
     </div>
   );

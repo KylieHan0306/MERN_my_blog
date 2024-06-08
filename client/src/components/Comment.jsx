@@ -59,12 +59,11 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
     
     const addNestedComments = async (e) => {
         e.preventDefault();
-
         const newNestedComment = {
             content: nestedComment,
             postId: comment.postId,
-            userId: currUser._id,
-            parentId: comment._id
+            userId: currUser?._id,
+            parentId: comment?._id
         };
         if(!currUser) return setOpenLoginModal(true);
         if (nestedComment.length > 200) {
@@ -193,7 +192,7 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 </p>
                 <button
                     type='button'
-                    onClick={()=> {setReplying(true)}}
+                    onClick={()=> {if(!currUser) return setOpenLoginModal(true);setReplying(true)}}
                     className='text-gray-400 hover:text-blue-500'
                 >
                     Reply
