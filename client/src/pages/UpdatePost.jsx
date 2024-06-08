@@ -202,9 +202,7 @@ export default function UpdatePost() {
             <Button 
                 outline
                 type='submit'                 
-                style={{
-                    backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
-                }}
+                className='bg-custom-gradient'
             >
                 Update
             </Button>

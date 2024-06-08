@@ -15,6 +15,8 @@ import Error from './pages/Error'
 import ScrollTop from './components/ScrollTop'
 import Search from './pages/Search'
 import Footer from './components/Footer'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsAndConditions from './pages/TermsCondition'
 
 export default function App() {
   return (
@@ -35,6 +37,8 @@ export default function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/update-post/:postId" element={<UpdatePost />} />
         <Route path="/post/:slug" element={<Post />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
         <Route element={<PrivateRoute />}>
           <Route path="/reset-password" element={<PasswordReset />} /> 
           <Route path="/create-post" element={<CreatePost />} />

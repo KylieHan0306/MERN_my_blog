@@ -236,9 +236,7 @@ export default function LoginRegisterForm ({ setOpenModal, setModalContent }) {
             <Button 
               outline
               onClick={handleSubmit}
-              style={{
-                backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
-              }}
+              className="bg-custom-gradient"
               disabled={loading || emailSent}
             >
               {loading? 

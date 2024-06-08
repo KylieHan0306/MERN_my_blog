@@ -40,7 +40,7 @@ export default function Home() {
               to='/search'
               className='text-xl sm:text-xl text-purple-500 font-bold hover:underline mt-2'
           >
-            View all posts - 
+            View all posts -&gt;
           </Link>
         </div>
         <img 

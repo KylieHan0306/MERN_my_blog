@@ -64,10 +64,7 @@ export default function Header() {
                 className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
             >
                 <span 
-                    className='px-2 py-1 rounded-lg text-white'
-                    style={{
-                        backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
-                    }}
+                    className='px-2 py-1 rounded-lg text-white bg-custom-gradient'
                 >
                     Kylie's
                 </span>
@@ -119,9 +116,7 @@ export default function Header() {
                     ) : (
                     <Button 
                         outline
-                        style={{
-                            backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
-                        }}
+                        className='bg-custom-gradient'
                         onClick={(e) => {e.preventDefault(); setOpenModal(true); }}
                     >
                         Login

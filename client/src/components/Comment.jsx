@@ -132,9 +132,7 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 <Button
                     type='button'
                     size='sm'
-                    style={{
-                        backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
-                    }}
+                    className='bg-custom-gradient'
                     outline
                     onClick={handleSave}
                 >
@@ -208,11 +206,8 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                             outline
                             type='button'
                             size='xs'
-                            className="h-8 justify-center items-center mr-2"
+                            className="h-8 justify-center items-center mr-2 bg-custom-gradient"
                             onClick={addNestedComments}
-                            style={{
-                                backgroundImage: 'linear-gradient(to right, #12c2e9, #c471ed, #f64f59)',
-                            }}
                         >
                             Reply
                         </Button>
