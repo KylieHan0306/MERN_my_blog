@@ -107,6 +107,7 @@ export default function UpdatePost() {
     const handleCodeChange = (e) => {
         if (formData.category === 'random-staff' || formData.category === 'uncategorized') return setCodeError('Please select a proper code type for this post.');
         setFormData({...formData, code: e.target.value})
+        setCodeError(null);
     }
 
     return (
@@ -153,7 +154,7 @@ export default function UpdatePost() {
             />
             <Button
                 type='button'
-                gradientDuoTone='purpleToBlue'
+                className='bg-custom-gradient'
                 size='sm'
                 outline
                 onClick={handlePhotoUpload}

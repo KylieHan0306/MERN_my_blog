@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { Table } from 'flowbite-react';
+import { Table, Spinner } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import ModalBox from './Modal';
 import DeletePostContent from './DeletePostContent';
@@ -16,15 +16,23 @@ export default function DashboardPosts({ postType }) {
   const [showMore, setShowMore] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const fetchPosts = async () => {
     try {
-      const endPoint = postType === 'all'? `/api/post?limit=9`: `/api/post?userId=${currUser?._id}?limit=9`;
+      setLoading(true);
+      const endPoint = postType === 'all'? `/api/post?limit=9`: `/api/post?userId=${currUser?._id}&limit=9`;
       const res = await axios.get(endPoint);
-      if (res.status === 200) setPosts(res.data.posts);
+      if (res.status === 200) {
+        setPosts(res.data.posts);
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
       // no more posts
       if (res.data.posts.length < 9) setShowMore(false);
     } catch (e) {
+      setLoading(false);
       const error = errorGenerator();
       navigate('/error', {state: {error}});
     }
@@ -68,7 +76,11 @@ export default function DashboardPosts({ postType }) {
   
   return (
     <div className='w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-      {posts.length > 0 ? (
+      {loading ? 
+        (<div className='flex justify-center items-center min-h-screen'>
+            <Spinner size='xl' />
+        </div>) : 
+        posts.length > 0 ? (
         <>
           <Table hoverable className='shadow-md'>
             <Table.Head>

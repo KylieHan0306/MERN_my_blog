@@ -6,6 +6,7 @@ import { Button, Textarea, TextInput } from 'flowbite-react';
 import axios from 'axios';
 import ModalBox from './Modal';
 import DeleteCommentContent from './DeleteCommentContent';
+import { useNavigate } from 'react-router-dom'
 
 
 export default function Comment({ comment, comments, onDelete, setCommentError }) {
@@ -20,6 +21,7 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
     const [commentToDelete, setCommentToDelete] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [openLoginModal, setOpenLoginModal] = useState(false);
+    const navigate = useNavigate();
     
     const getUser = async () => {
         try {
@@ -35,7 +37,11 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
     };
 
     useEffect(() => {
-        getUser();
+        if (comment.userId) {
+            getUser();
+        } else {
+            setUser({ username: 'Anonymous user', photoUrl: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'});
+        }
     }, [comment]);
 
     const handleSave = async (e) => {
@@ -103,23 +109,39 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
         }
     };
   
+    const handleUserClick = (e) => {
+        e.preventDefault();
+        if (currUser.username !== user.username) {
+            navigate(`/search?searchTerm=${post.owner}`)
+        } else {
+            navigate(`/dashboard?tab=profile`)
+        }
+
+    }
+    
     return (
         <div className='flex p-4 border-b dark:border-gray-600 text-sm'>
         <div className='flex-shrink-0 mr-3'>
             <img
-            className='w-10 h-10 rounded-full bg-gray-200'
-            src={user.photoUrl}
-            alt={user.username}
+                className='w-10 h-10 rounded-full bg-gray-200'
+                src={user.photoUrl}
+                alt={user.username}
             />
         </div>
         <div className='flex-1'>
             <div className='flex items-center mb-1'>
-            <span className='font-bold mr-1 text-xs truncate'>
-                {user ? `@${user.username}` : 'anonymous user'}
-            </span>
-            <span className='text-gray-500 text-xs'>
-                {moment(commentState.createdAt).fromNow()}
-            </span>
+                {user.username==='Anonymous user' || user.username === 'user not exist' ? (
+                    <span className='font-bold mr-1 text-xs truncate'>
+                        {'Anonymous User'}
+                    </span>
+                ) : (
+                    <span className='font-bold mr-1 text-xs truncate hover:underline cursor-pointer hover:text-purple-500' onClick={handleUserClick}>
+                        {`@${user.username}`}
+                     </span>
+                )}
+                <span className='text-gray-500 text-xs'>
+                    {moment(commentState.createdAt).fromNow()}
+                </span>
             </div>
             {isEditing ? (
             <>
@@ -176,7 +198,7 @@ export default function Comment({ comment, comments, onDelete, setCommentError }
                 >
                     Reply
                 </button>
-                {(currUser._id === comment.userId) && (
+                {comment.userId && (currUser?._id === comment.userId) && (
                     <>
                         <button
                             type='button'

@@ -25,6 +25,7 @@ export default function CreatePost() {
   const [uploadProgress, setUploadProgress] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const [codeError, setCodeError] = useState(null);
+  console.log(formData.photoUrl);
 
   const navigate = useNavigate();
 
@@ -129,7 +130,7 @@ export default function CreatePost() {
           />
           <Button
             type='button'
-            gradientDuoTone='purpleToBlue'
+            className='bg-custom-gradient'
             size='sm'
             outline
             onClick={handlePhotoUpload}
@@ -148,9 +149,9 @@ export default function CreatePost() {
           </Button>
         </div>
         {uploadError && <Alert color='failure'>{uploadError}</Alert>}
-        {formData.image && (
+        {formData.photoUrl && (
           <img
-            src={formData.image}
+            src={formData.photoUrl}
             alt='upload'
             className='w-full h-72 object-cover'
           />

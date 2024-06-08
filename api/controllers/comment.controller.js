@@ -5,7 +5,8 @@ const { ObjectId } = require('mongodb');
 const createCommentController = async (req, res, next) => {
     try {
         const { content, userId, postId, parentId } = req.body;
-        if (userId !== req.user.id) return next(errorHandler(401, 'Unauthorized'));
+        // Allow anonymous comment
+        //if (userId !== req.user.id) return next(errorHandler(401, 'Unauthorized'));
         let parentObjectId = null;
 
         if (parentId && ObjectId.isValid(parentId)) {
@@ -20,6 +21,7 @@ const createCommentController = async (req, res, next) => {
         await comment.save();
         res.status(201).json(comment);
     } catch (error) {
+        console.log(error);
         next(error);
     }
 }

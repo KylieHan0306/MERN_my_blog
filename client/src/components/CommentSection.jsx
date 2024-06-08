@@ -18,7 +18,6 @@ export default function CommentSection({ postId }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(!currUser) return setOpenLoginModal(true);
         if (comment.length > 200) {
             return;
         }
@@ -26,9 +25,10 @@ export default function CommentSection({ postId }) {
             const res = await axios.post('/api/comment/create', {
                 content: comment,
                 postId,
-                userId: currUser._id,
+                userId: currUser? currUser._id: null,
                 parentId: null
             });
+            console.log(res);
             if (res.status === 201) {
                 setComment('');
                 setCommentError(null);
@@ -78,7 +78,7 @@ export default function CommentSection({ postId }) {
   
     return (
         <div className='mx-auto w-full p-3'>
-        {currUser ? (
+        {currUser && (
             <div className='flex items-center gap-1 my-5 text-gray-500 text-sm'>
             <p>Signed in as:</p>
             <img
@@ -88,45 +88,36 @@ export default function CommentSection({ postId }) {
             />
             <Link
                 to={'/dashboard?tab=profile'}
-                className='text-xs text-cyan-600 hover:underline'
+                className='text-xs text-purple-500 hover:underline'
             >
                 @{currUser.username}
             </Link>
             </div>
-        ) : (
-            <div className='text-sm text-purple-500 my-5 flex gap-1'>
-                You must be signed in to comment.
-            <Link className='text-blue-500 hover:underline' to={'/sign-in'}>
-                Sign In
-            </Link>
-            </div>
         )}
-        {currUser && (
-            <form
-                onSubmit={handleSubmit}
-                className='border border-purple-500 rounded-md p-4'
+        <form
+            onSubmit={handleSubmit}
+            className='border border-purple-600 rounded-md p-4'
+        >
+        <Textarea
+            placeholder='Add a comment...'
+            rows='3'
+            maxLength='200'
+            onChange={(e) => setComment(e.target.value)}
+            value={comment}
+        />
+        <div className='flex justify-between items-center mt-5'>
+            <p className='text-gray-500 text-xs'>
+            {200 - comment.length} characters remaining
+            </p>
+            <Button 
+                outline                 
+                className='bg-custom-gradient'
+                type='submit'
             >
-            <Textarea
-                placeholder='Add a comment...'
-                rows='3'
-                maxLength='200'
-                onChange={(e) => setComment(e.target.value)}
-                value={comment}
-            />
-            <div className='flex justify-between items-center mt-5'>
-                <p className='text-gray-500 text-xs'>
-                {200 - comment.length} characters remaining
-                </p>
-                <Button 
-                    outline                 
-                    className='bg-custom-gradient'
-                    type='submit'
-                >
-                    Submit
-                </Button>
-            </div>
-            </form>
-        )}
+                Submit
+            </Button>
+        </div>
+        </form>
         {commentError && (
             <Alert color='failure' className='mt-5'>
             {commentError}

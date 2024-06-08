@@ -12,7 +12,6 @@ const commentSchema = mongoose.Schema({
     },
     userId: {
         type: String,
-        required: true 
     },
     likes: {
         type: Array,
