@@ -7,6 +7,7 @@ const postRouter = require('./routes/post.route.js')
 const commentRouter = require('./routes/comment.route.js')
 const cookieParser = require('cookie-parser')
 const path = require('path')
+const parentDir = path.dirname(__dirname)
 
 dotenv.config()
 
@@ -29,9 +30,10 @@ app.use('/api/user', userRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/post', postRouter)
 app.use('/api/comment', commentRouter)
-app.use(express.static(path.join(__dirname, '/client/dist')))
+app.use(express.static(path.join(parentDir, '/client/dist')))
+
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+    res.sendFile(path.join(parentDir, 'client', 'dist', 'index.html'));
 })
 
 app.use((err, req, res, next)=> {
