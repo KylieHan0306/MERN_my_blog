@@ -74,6 +74,7 @@ export default function Search() {
         e.preventDefault();
         const urlParams = new URLSearchParams(location.search);
         searchForm.searchTerm.length !==0 && urlParams.set('searchTerm', searchForm.searchTerm);
+        searchForm.searchTerm.length === 0 && urlParams.delete('searchTerm');
         urlParams.set('order', searchForm.order);
         searchForm.category !== 'null' && urlParams.set('category', searchForm.category);
         const searchQuery = urlParams.toString();

@@ -93,7 +93,7 @@ export default function DashboardComments() {
                   <Table.Cell className='md:w-[40%]'>{comment.content}</Table.Cell>
                   <Table.Cell className='md:w-[10%]'>{comment.likes.length}</Table.Cell>
                   <Table.Cell className='md:w-[10%]'>{comment.postId.toString()}</Table.Cell>
-                  <Table.Cell className='md:w-[10%]'>{comment.userId.toString()}</Table.Cell>
+                  <Table.Cell className='md:w-[10%]'>{comment.userId?comment.userId.toString():'Anonymous user'}</Table.Cell>
                   <Table.Cell className='md:w-[10%]'>{comment.parentId? comment.parentId:'No parent comment'}</Table.Cell>
                   <Table.Cell>
                     <span
